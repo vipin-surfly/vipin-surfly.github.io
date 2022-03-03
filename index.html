@@ -1,31 +1,41 @@
-<html>                            </html>
-<script>
-  (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
-  l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
-  l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
-  (window,document,'script','Surfly');
-  
-  var settings = {
-  // Surfly session options can be set here, or at the Company/Plan levels.
-  widget_key: '513065a5492743e6a6340aec09b7e4d1',
-  private_session: true, // to make sure only logged in agents can join the call
-  require_password: false,
-    docked_only: true
-  };
-  
-  Surfly.init(settings, function(initResult) {
-      if (initResult.success) {
-          // API calls can now be made!
-          if (!Surfly.isInsideSession) {
-              //Surfly.button();
-          }
-      }
-      else{
-          console.log("Surfly was unable to initialize properly.")
-      }
-  });
-  </script>
+<html>
 <body>
-    <button onclick= "Surfly.session().startLeader()">Start a NEW session</button>
+    <script>
+        // Surfly snippet
+        (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+        l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+        l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+        (window,document,'script','Surfly');
+
+        // The preferred way is to set session options from the Surfly web interface,
+        // so in most cases you only need to provide a widget key below,
+        // but you can also override any options here
+        var settings = {
+            widget_key: "**your widget key here**",
+            hide_until_agent_joins: true,
+            start_docked: true
+        };
+
+        // Surfly.init() must be called before any other API call
+        Surfly.init(settings, function(init) {
+        if (init.success && !Surfly.isInsideSession) {
+            Surfly.session()
+            .on("session_started", function(session, event) {
+                // display the PIN of the current session
+                document.querySelector("#sessidtarget").innerText = session.pin;
+            })
+            .on("viewer_joined", function(session, event) {
+                // if the first viewer joins, redirect to a page of your choice
+                if (event.count == 1) {
+                session.relocate("https://www.surfly.com");
+                }
+            })
+            .startLeader();
+        }
+        });
+    </script>
+
+    <h1>Landing Page Example</h1>
+    Session Code: <span id="sessidtarget">...</span>
 </body>
 </html>
