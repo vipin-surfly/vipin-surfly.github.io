@@ -22,6 +22,7 @@
             Surfly.session()
             .on("session_started", function(session, event) {
                 // display the PIN of the current session
+                console.log(session.pin);
                 document.querySelector("#sessidtarget").innerText = session.pin;
             })
             .on("viewer_joined", function(session, event) {
