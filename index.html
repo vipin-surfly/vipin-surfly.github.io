@@ -1,43 +1,29 @@
 <html>
 <head>
-    <script>
-  (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
-  l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
-  l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
-  (window,document,'script','Surfly');
+<script>
+(function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+(window,document,'script','Surfly');
 
-  Surfly.init({widget_key:'513065a5492743e6a6340aec09b7e4d1'}, function(init) {
-    if (init.success) {
+var settings = {
+// Surfly session options can be set here, or at the Company/Plan levels.
+widget_key: '513065a5492743e6a6340aec09b7e4d1',
+private_session: true, // to make sure only logged in agents can join the call
+require_password: false,
+};
 
-      // display the default Surfly button
-      Surfly.button();
-
-      // ADD THE PART BELOW TO THE BASIC SURFLY SCRIPT
-      var sess;
-      if(!Surfly.currentSession){
-        sess = Surfly.session();
-      }
-      else {
-        sess = Surfly.currentSession;
-      }
-      sess.on('control', function(session, event) {
-        var element = document.getElementById("order_button");
-        // Specify that you DON'T want the limitations to apply to the leader
-        // Use index 0 for the leader, and 1, 2, etc. for the followers
-        if (event.to==0) {
-          element.disabled = false;
-          element.style.backgroundColor = "#87cefa";
+Surfly.init(settings, function(initResult) {
+    if (initResult.success) {
+        // API calls can now be made!
+        if (!Surfly.isInsideSession) {
+            
         }
-        // Apply the limitations to everyone else when they are in control
-        else {
-          element.disabled = true;
-          element.style.backgroundColor = "#e6fff2";
-        }
-      })
-      // UNTIL HERE
-
     }
-  });
+    else{
+        console.log("Surfly was unable to initialize properly.")
+    }
+});
 </script>
 <style>
 
@@ -67,27 +53,6 @@
 </style>
 </head>
 <body>
-    <h1>Co-browsing example</h1>
-    <!-- Button that will trigger the popup -->
-    <button id="btn-request-session" class="hidden">Get help</button>
-
-    <!-- Create a popup -->
-    <div id="surfly-session-modal" class="hidden">
-        <h4>Welcome to co-browsing</h4>
-
-        <!-- Add a session agreement the user has to agree to before co-browsing is initiated -->
-        <p id="session-agreement">You are about to start a co-browsing session. By clicking "Agree" you allow the helpdesk agent to browse the website with you.</p>
-
-        <!-- Placeholder for displaying the session PIN -->
-        <p id="session-id"></p>
-
-        <!-- Button to start the co-browsing session -->
-        <button class="modal-button" id="btn-start-session">Agree</button>
-
-        <!-- Cancel button is shown until the agent joins -->
-        <button class="modal-button hidden" id="btn-cancel-session">Cancel</button>
-    </div>
-
-    
+<button onclick= "Surfly.session({language: (window.navigator.userLanguage || window.navigator.language)}).startLeader()">Start a session</button>
 </body>
 </html>
