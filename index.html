@@ -24,6 +24,11 @@ Surfly.init(settings, function(initResult) {
         console.log("Surfly was unable to initialize properly.")
     }
 });
+ function invoke()
+    {
+        var lang=(window.navigator.userLanguage || window.navigator.language);
+        Surfly.session({language: "+lang+"}).startLeader();
+    }   
 </script>
 <style>
 
@@ -53,6 +58,6 @@ Surfly.init(settings, function(initResult) {
 </style>
 </head>
 <body>
-<button onclick= "Surfly.session({language: (window.navigator.userLanguage || window.navigator.language)}).startLeader()">Start a session</button>
+<button onclick= invoke();>Start a session</button>
 </body>
 </html>
