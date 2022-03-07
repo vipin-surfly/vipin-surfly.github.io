@@ -30,7 +30,7 @@ Surfly.init(settings, function(initResult) {
         var remove_after= lang.indexOf('-');
         var lang =  lang.substring(0, remove_after);
         console.log(lang);
-        Surfly.session({language: "+lang+"}).startLeader();
+        Surfly.session({language: lang}).startLeader();
     }   
 </script>
 <style>
