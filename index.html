@@ -27,8 +27,11 @@ Surfly.init(settings, function(initResult) {
  function invoke()
     {
         var lang=(window.navigator.userLanguage || window.navigator.language);
+        if(lang.includes("-"))
+        {
         var remove_after= lang.indexOf('-');
         var lang =  lang.substring(0, remove_after);
+        }
         console.log(lang);
         Surfly.session({language: lang}).startLeader();
     }   
