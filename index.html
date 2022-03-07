@@ -27,7 +27,7 @@ Surfly.init(settings, function(initResult) {
  function invoke()
     {
         var lang=(window.navigator.userLanguage || window.navigator.language);
-        lang=lang.slice(0,3)
+        lang=lang.slice(0,4)
         console.log(lang);
         Surfly.session({language: "+lang+"}).startLeader();
     }   
