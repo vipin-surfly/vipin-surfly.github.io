@@ -39,8 +39,8 @@ Surfly.init(settings, function(init) {
         }
         alert("Language for Browser: "+lang);
         Surfly.session({language: lang}).create();
-        alert(Surfly.session({language: lang}).pin);
-        //Surfly.session({language: lang}).startLeader();
+        //alert(Surfly.session({language: lang}).pin);
+        Surfly.session({language: lang}).startLeader();
     }   
 </script>
 <style>
