@@ -13,11 +13,9 @@ private_session: true, // to make sure only logged in agents can join the call
 require_password: false,
 };
 
-Surfly.init(settings, function(initResult) {
-    if (initResult.success) {
-        // API calls can now be made!
-        if (!Surfly.isInsideSession) {
-             Surfly.session()
+Surfly.init(settings, function(init) {
+        if (init.success && !Surfly.isInsideSession) {
+            Surfly.session()
             .on("session_started", function(session, event) {
                 // display the PIN of the current session
                 document.querySelector("#sessidtarget").innerText = session.pin;
@@ -28,13 +26,9 @@ Surfly.init(settings, function(initResult) {
                 session.relocate("https://www.surfly.com");
                 }
             })
-            
         }
-    }
-    else{
-        console.log("Surfly was unable to initialize properly.")
-    }
-});
+        });
+    
  function invoke()
     {
         var lang=(window.navigator.userLanguage || window.navigator.language);
@@ -43,7 +37,7 @@ Surfly.init(settings, function(initResult) {
         var remove_after= lang.indexOf('-');
         var lang =  lang.substring(0, remove_after);
         }
-        //alert("Language for Browser: "+lang);
+        alert("Language for Browser: "+lang);
         //Surfly.session({language: lang}).startLeader();
     }   
 </script>
