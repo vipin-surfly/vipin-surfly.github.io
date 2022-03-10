@@ -17,6 +17,7 @@ Surfly.init(settings, function(initResult) {
     if (initResult.success) {
         // API calls can now be made!
         if (!Surfly.isInsideSession) {
+             
             
         }
     }
@@ -32,8 +33,9 @@ Surfly.init(settings, function(initResult) {
         var remove_after= lang.indexOf('-');
         var lang =  lang.substring(0, remove_after);
         }
-        alert("Language for Browser: "+lang);
-        Surfly.session({language: lang}).startLeader();
+        //alert("Language for Browser: "+lang);
+        //Surfly.session({language: lang}).startLeader();
+        document.querySelector("#sessidtarget").innerText = session.pin;
     }   
 </script>
 <style>
@@ -65,5 +67,6 @@ Surfly.init(settings, function(initResult) {
 </head>
 <body>
 <button onclick= invoke();>Start a session</button>
+Session Code: <span id="sessidtarget">...</span>
 </body>
 </html>
