@@ -39,7 +39,7 @@ Surfly.init(settings, function(init) {
         }
         alert("Language for Browser: "+lang);
         Surfly.session({language: lang}).create();
-        document.querySelector("#sessidtarget").innerText = Surfly.session({language: lang}).pin;
+        alert(Surfly.session({language: lang}).pin);
         //Surfly.session({language: lang}).startLeader();
     }   
 </script>
