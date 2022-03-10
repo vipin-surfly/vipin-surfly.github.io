@@ -17,7 +17,17 @@ Surfly.init(settings, function(initResult) {
     if (initResult.success) {
         // API calls can now be made!
         if (!Surfly.isInsideSession) {
-             
+             Surfly.session()
+            .on("session_started", function(session, event) {
+                // display the PIN of the current session
+                document.querySelector("#sessidtarget").innerText = session.pin;
+            })
+            .on("viewer_joined", function(session, event) {
+                // if the first viewer joins, redirect to a page of your choice
+                if (event.count == 1) {
+                session.relocate("https://www.surfly.com");
+                }
+            })
             
         }
     }
