@@ -24,36 +24,6 @@ Surfly.init(settings, function(initResult) {
         console.log("Surfly was unable to initialize properly.")
     }
 });
-
-Surfly.init(settings, function(init) {
-        if (init.success && !Surfly.isInsideSession) {
-            Surfly.session()
-            .on("session_started", function(session, event) {
-                // display the PIN of the current session
-                document.querySelector("#sessidtarget").innerText = session.pin;
-            })
-            .on("viewer_joined", function(session, event) {
-                // if the first viewer joins, redirect to a page of your choice
-                if (event.count == 1) {
-                session.relocate("https://www.surfly.com");
-                }
-            })
-        }
-        });
-    
- function invoke()
-    {
-        var lang=(window.navigator.userLanguage || window.navigator.language);
-        if(lang.includes("-"))
-        {
-        var remove_after= lang.indexOf('-');
-        var lang =  lang.substring(0, remove_after);
-        }
-        alert("Language for Browser: "+lang);
-        Surfly.session({language: lang}).create();
-        //alert(Surfly.session({language: lang}).pin);
-        Surfly.session({language: lang}).startLeader();
-    }   
 </script>
 <style>
 
@@ -85,9 +55,6 @@ Surfly.init(settings, function(init) {
 </style>
 </head>
 <body>
- <label for="fname">Enter Pin:</label>
-<input type="text" id="cityname" name="lname" class="city"><br><br>
-<input type="text"  name="lname" class="surfly-session-modal"><br><br>
-<button onclick= invoke();>Start a session</button>
+TESTING UAT ENV
 </body>
 </html>
