@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<position>
+	<pos xpos="40" ypos="50">A1</pos>		
+	<pos xpos="160" ypos="50">B1</pos>		
+	<pos xpos="280" ypos="50">C1</pos>		
+	<pos xpos="400" ypos="50">D1</pos>		
+	<pos xpos="520" ypos="50">E1</pos>		
+	<pos xpos="640" ypos="50">F1</pos>		
+	<pos xpos="40" ypos="155">A2</pos>		
+	<pos xpos="160" ypos="155">B2</pos>		
+	<pos xpos="280" ypos="155">C2</pos>		
+	<pos xpos="400" ypos="155">D2</pos>		
+	<pos xpos="520" ypos="155">E2</pos>		
+	<pos xpos="640" ypos="155">F2</pos>	
+	<pos xpos="40" ypos="260">A3</pos>		
+	<pos xpos="160" ypos="260">B3</pos>		
+	<pos xpos="280" ypos="260">C3</pos>		
+	<pos xpos="400" ypos="260">D3</pos>		
+	<pos xpos="520" ypos="260">E3</pos>		
+	<pos xpos="640" ypos="260">F3</pos>	
+	<pos xpos="40" ypos="365">A4</pos>		
+	<pos xpos="160" ypos="365">B4</pos>		
+	<pos xpos="280" ypos="365">C4</pos>		
+	<pos xpos="400" ypos="365">D4</pos>		
+	<pos xpos="520" ypos="365">E4</pos>		
+	<pos xpos="640" ypos="365">F4</pos>
+	<pos xpos="40" ypos="470">A5</pos>		
+	<pos xpos="160" ypos="470">B5</pos>		
+	<pos xpos="280" ypos="470">C5</pos>		
+	<pos xpos="400" ypos="470">D5</pos>		
+	<pos xpos="520" ypos="470">E5</pos>		
+	<pos xpos="640" ypos="470">F5</pos>
+</position>										
+										

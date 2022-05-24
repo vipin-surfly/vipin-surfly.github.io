@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<processFlow title="Log on to SAP BusinessObjects Business Intelligence platform" steps="8">
+<news>BI launch pad was formerly known as InfoView.</news>
+	<step num="1" arrow="1" btn="1" btnpos="mid">
+		<begin xpos="105" ypos="114" />
+		<end xpos="105" ypos="155" />
+		<desc>The user sends the log in request from the BI launch pad web client through the web server to the web application server, where the BI launch pad web application is running.&#13;&#13;Note: This log on process also applies to other web clients, such as the Central Management Console (CMC).</desc>
+	</step>
+	<step num="1" arrow="1" btn="0" btnpos="mid">
+		<begin xpos="122" ypos="168" />
+		<end xpos="160" ypos="168" />
+		<desc></desc>
+	</step>
+	<step num="2" arrow="1" btn="1" btnpos="mid">
+		<begin xpos="225" ypos="219" />
+		<end xpos="225" ypos="260" />
+		<desc>The web application server determines that the request is a logon request. The web application server sends the username, password, and authentication type to the Central Management Server (CMS) for authentication.</desc>
+	</step>
+	<step num="3" arrow="1" btn="0" btnpos="mid">
+		<begin xpos="199" ypos="324" />
+		<end xpos="199" ypos="470" />
+		<desc></desc>
+	</step>
+	<step num="3" arrow="1" btn="1" btnpos="mid">
+		<begin xpos="199" ypos="460" />
+		<end xpos="199" ypos="324" />
+		<desc>The CMS validates the username and password against the appropriate database. In this case, Enterprise authentication is used, so user credentials are authenticated against the CMS system database.</desc>
+	</step>
+
+	<step num="4" arrow="0" btn="1" btnpos="mid">
+		<begin xpos="242" ypos="294" />
+		<end xpos="242" ypos="294" />
+		<desc>Upon successful validation, the CMS creates a session for the user in memory.</desc>
+	</step>
+	
+	<step num="5" arrow="1" btn="1" btnpos="mid">
+		<begin xpos="173" ypos="260" />
+		<end xpos="173" ypos="219" />
+		<desc>The CMS sends a response to the web application server to let it know that the validation was successful.</desc>
+	</step>
+
+	<step num="6" arrow="0" btn="1" btnpos="mid">
+		<begin xpos="242" ypos="189" />
+		<end xpos="242" ypos="189" />
+		<desc>The web application server generates a logon token for the user session in memory. For the rest of this session, the web application server uses the logon token to validate the user against the CMS.&#13;&#13;The web application server also generates the next web page to send to the web client.</desc>
+	</step>
+
+	<step num="7" arrow="1" btn="1" btnpos="mid">
+		<begin xpos="160" ypos="209" />
+		<end xpos="122" ypos="209" />
+		<desc>The web application server sends the next web page to the web server.</desc>
+	</step>
+	<step num="8" arrow="1" btn="1" btnpos="mid">
+		<begin xpos="53" ypos="155" />
+		<end xpos="53" ypos="114" />
+		<desc>The web server sends the web page to the web client.</desc>
+	</step>
+</processFlow>
