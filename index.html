@@ -16,7 +16,13 @@ Surfly.init(settings, function(initResult) {
     if (initResult.success) {
         // API calls can now be made!
         if (!Surfly.isInsideSession) {
-            Surfly.button();
+           Surfly.currentSession.on('message', function (session, event) {
+    if (event.origin === window.location.origin) {
+      console.log('Outer window says:', event.data);
+    } else {
+      console.log("Outer window has a different origin");
+    }
+  });
         }
     }
     else{
