@@ -7,9 +7,11 @@ loginButton.addEventListener("click", (e) => {
     const username = loginForm.username.value;
     const password = loginForm.password.value;
 
-    if (username === "user" && password === "web_dev") {
+    if (username === "vipin" && password === "vipin") {
         alert("You have successfully logged in.");
-        location.reload();
+        document.cookie = "username=Vipin Pillai"; 
+        //location.reload();
+        location.replace("main.html")
     } else {
         loginErrorMsg.style.opacity = 1;
     }
