@@ -63,7 +63,11 @@ Surfly.init(settings, function(initResult) {
     else{
         console.log("Surfly was unable to initialize properly.")
     }
-});  
+});
+function  logoff()
+{
+ document.cookie = 'user=; Max-Age=-99999999;';   
+}
 </script>
 </head>
 <body onload="checkcookie()">
@@ -73,6 +77,6 @@ Local Storage<div id="result_loc"></div>
 Session Storage<div id="result_glo"></div>
 <p>Click the button to see the counter increase.</p>
 <p>Close the browser tab (or window), and try again, and the counter will continue to count (is not reset).</p>
-
+<p><button onclick="logoff()" type="button">Log Off!</button></p>
 </body>
 </html>
