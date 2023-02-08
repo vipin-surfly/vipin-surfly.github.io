@@ -69,6 +69,8 @@ Surfly.init(settings, function(initResult) {
 function  logoff()
 {
  document.cookie = 'username=; Max-Age=-99999999;';
+  localStorage.removeItem("clickcount"); 
+  sessionStorage.removeItem("clickcount"); 
   location.replace("index.html");
 }
 </script>
