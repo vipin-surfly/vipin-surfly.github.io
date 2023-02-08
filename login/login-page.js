@@ -9,7 +9,7 @@ loginButton.addEventListener("click", (e) => {
 
     if (username === "vipin" && password === "vipin") {
         alert("You have successfully logged in.");
-        document.cookie = "username=Vipin Pillai"; 
+        document.cookie = "username=vipin"; 
         //location.reload();
         location.replace("main.html")
     } else {
