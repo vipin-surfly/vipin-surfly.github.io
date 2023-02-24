@@ -11,9 +11,17 @@ l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
 
 var settings = {
 // Surfly session options can be set here, or at the Company/Plan levels.
-widget_key: '9eb008187dca447685c55d80614e1d18',
+widget_key: '5fcef194489542c4955bd04bba041ffb',
 private_session: true, // to make sure only logged in agents can join the call
 password_required: false,
+new_urls_allowed: false,
+block_until_agent_joins: false,
+start_with_loading_screen: false,
+start_with_invite_modal: false,
+videochat: true,
+start_with_videochat_on: true,
+start_with_fullscreen_videochat: true,
+videochat_prompt: true
 };
 
 Surfly.init(settings, function(initResult) {
