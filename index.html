@@ -5,7 +5,39 @@
     <body>
 TESTING
         <!-- Start of surflysupport Zendesk Widget script -->
-<script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=3b444689-7087-46ea-8e82-1733dac11b33"> </script>
-<!-- End of surflysupport Zendesk Widget script -->
+ <script>
+(function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+(window,document,'script','Surfly');
+
+var settings = {
+// Surfly session options can be set here, or at the Company/Plan levels.
+widget_key: '513065a5492743e6a6340aec09b7e4d1',
+private_session: true, // to make sure only logged in agents can join the call
+password_required: false,
+};
+
+Surfly.init(settings, function(initResult) {
+    if (initResult.success) {
+        // API calls can now be made!
+        if (!Surfly.isInsideSession) {
+           var zendeskScript = document.createElement('script');
+                  zendeskScript.id = 'ze-snippet'
+                  zendeskScript.type = 'text/javascript'
+                  zendeskScript.src = "https://static.zdassets.com/ekr/snippet.js?key=3b444689-7087-46ea-8e82-1733dac11b33";
+
+                  zendeskScript.onload = () => {
+                    console.log("Zendesk loaded...")
+                  }
+
+                  document.body.appendChild(zendeskScript);
+        }
+    }
+    else{
+        console.log("Surfly was unable to initialize properly.")
+    }
+});
+</script>
     </body>
 </html>
