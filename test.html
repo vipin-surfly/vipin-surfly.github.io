@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <style>
+    .slack_script {
+      z-index: 2147483647 !important;
+      position: relative
+    }
+       </style>
+  <head>
+    <title>Chat Test</title>
+
+
+
+
+
+
+  </head>
+  <body>
+    <h1>TESTING...</h1>
+
+
+    <button type="button" onclick="zindexchecker_slack()">Show Slack Z-Index</button>
+    <button type="button" onclick="updatezindex()">try this</button>
+
+    <p>test 1 million</p>
+
+
+
+ <div class="slack_script" id="slack_script_div">
+  <p style="background:black;color:red; position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);">STAY ON TOP</p>
+<script class="slack_script" id="slack_script" src="https://www.socialintents.com/api/chat/socialintents.1.3.js#2c9faa3586fae0ef0186ff78ac490279" async="async">
+
+</script>
+</div>
+
+<script>
+  (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+  l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+  l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+  (window,document,'script','Surfly');
+
+  Surfly.init({widget_key:'99671227762b43c2a96daa066ee006e2'}, init => {
+      if (init.success) {
+          // display the default Surfly button
+          Surfly.button();
+      }
+  });
+
+  if(!Surfly.isInsideSession){
+    Surfly.button();
+      // Add your chat solution's snippet below
+      var slackScript = document.createElement('slack_script');
+                  slackScript.async= "async"
+                  slackScript.src = "https://www.socialintents.com/api/chat/socialintents.1.3.js#2c9faa3586fae0ef0186ff78ac490279";
+    
+            slackScript.onload = () => {
+                    console.log("Slack loaded...")
+                  }
+
+                  document.body.appendChild(slackScript);
+      // End of chat snippet
+  }
+</script>
+
+
+    </div>
+
+
+<script>
+ //UPDATE SLACK SCRIPT Z INDEX
+ document.getElementById("slack_script_div").style.zIndex = "9999999999";
+ document.getElementsByClassName("body").style.zIndex = "9999999999"; 
+ document.getElementById("socialintents-chat").style.zIndex = "9999999999";
+ document.getElementsByClassName("si-wrapper").style.zIndex = "9999999999"; 
+ document.getElementById("si-wrapper").style.zIndex = "9999999999";
+ document.getElementsByClassName("siTabL").style.zIndex = "9999999999"; 
+ document.getElementsByClassName("siTabB").style.zIndex = "9999999999"; 
+ document.getElementsByClassName("siTabT").style.zIndex = "9999999999"; 
+ document.getElementsByClassName("siTabR").style.zIndex = "9999999999"; 
+ document.getElementById("siTabL").style.zIndex = "9999999999";
+ document.getElementById("siTabB").style.zIndex = "9999999999";
+ document.getElementById("siTabT").style.zIndex = "9999999999";
+ document.getElementById("siTabR").style.zIndex = "9999999999";
+
+ function updatezindex() {
+
+
+  document.getElementById("slack_script_div").style.zIndex = "9999999999";
+ document.getElementsByClassName("body").style.zIndex = "9999999999"; 
+ document.getElementById("socialintents-chat").style.zIndex = "9999999999";
+ document.getElementsByClassName("si-wrapper").style.zIndex = "9999999999"; 
+ document.getElementById("si-wrapper").style.zIndex = "9999999999";
+ document.getElementsByClassName("siTabL").style.zIndex = "9999999999"; 
+ document.getElementsByClassName("siTabB").style.zIndex = "9999999999"; 
+ document.getElementsByClassName("siTabT").style.zIndex = "9999999999"; 
+ document.getElementsByClassName("siTabR").style.zIndex = "9999999999"; 
+ document.getElementById("siTabL").style.zIndex = "9999999999";
+ document.getElementById("siTabB").style.zIndex = "9999999999";
+ document.getElementById("siTabT").style.zIndex = "9999999999";
+ document.getElementById("siTabR").style.zIndex = "9999999999";
+
+ }
+
+
+
+ 
+
+
+
+ 
+
+  //Z INDEX CHECK FUNCTION
+  
+  function zindexchecker_slack() {
+    alert(document.getElementById("slack_script_div").style.zIndex);
+  }
+  </script>
+  
+  </body>
+</html>
