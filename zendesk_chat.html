@@ -7,6 +7,7 @@ TESTING
 
 <div class="chat_msg">
  <script>
+var SurflySession;
 (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
 l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
 l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
@@ -33,6 +34,11 @@ Surfly.init(settings, function(initResult) {
                   }
 
                   document.body.appendChild(zendeskScript);
+            SurflySession=Surfly.session({start_with_chat_open: false}).on("session_created", function(session, event) {
+                // display the PIN of the current session
+               console.log("Session PIN"+session.pin);
+            });
+            SurflySession=Surfly.session({start_with_chat_open: false}).startLeader();
         }
     }
     else{
@@ -41,5 +47,6 @@ Surfly.init(settings, function(initResult) {
 });
 </script>
         </div>
+        <button onclick= "alert(session.pin);">Show Pin</button>
     </body>
 </html>
