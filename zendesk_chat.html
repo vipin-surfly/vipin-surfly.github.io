@@ -28,9 +28,7 @@ Surfly.init(settings, function(initResult) {
                   }
 
                   document.body.appendChild(zendeskScript);
-            SurflySession=Surfly.session({start_with_chat_open: false}).on("session_created", function(session, event) {
-                // display the PIN of the current session
-               console.log("Session PIN"+session.pin);
+           
             });
             
         }
@@ -40,11 +38,11 @@ Surfly.init(settings, function(initResult) {
     }
 });
      
-/*function callme()
+function callme()
      {
      SurflySession=Surfly.session({start_with_chat_open: false}).startLeader();
      alert(session.pin);
-     }*/
+     }
 </script>
 </head>
 <body>
