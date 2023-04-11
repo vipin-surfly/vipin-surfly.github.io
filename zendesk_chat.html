@@ -38,15 +38,21 @@ Surfly.init(settings, function(initResult) {
                 // display the PIN of the current session
                console.log("Session PIN"+session.pin);
             });
-            SurflySession=Surfly.session({start_with_chat_open: false}).startLeader();
+            
         }
     }
     else{
         console.log("Surfly was unable to initialize properly.")
     }
 });
+     
+function callme()
+     {
+     SurflySession=Surfly.session({start_with_chat_open: false}).startLeader();
+     alert(session.pin);
+     }
 </script>
         </div>
-        <button onclick= "alert(session.pin);">Show Pin</button>
+        <button onclick= callme();">Start ME</button>
     </body>
 </html>
