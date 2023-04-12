@@ -1,15 +1,25 @@
 <html>
 <head>
-<script>
+<style>
+#webWidget {
+    z-index: 2147483549 !important;;
+} 
+</style>
+</head>
+<body>
+TESTING
+<script  type="text/javascript">
 var SurflySession;
+var session_pin;
 (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
 l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
 l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
 (window,document,'script','Surfly');
 
+
 var settings = {
 // Surfly session options can be set here, or at the Company/Plan levels.
-widget_key: '513065a5492743e6a6340aec09b7e4d1',
+widget_key: '1bf4dd96b1bb476882bdfb938c68fb7b',
 private_session: true, // to make sure only logged in agents can join the call
 password_required: false,
 };
@@ -28,27 +38,25 @@ Surfly.init(settings, function(initResult) {
                   }
 
                   document.body.appendChild(zendeskScript);
-           
-            });
-            
+
+                /*  SurflySession=Surfly.session({start_with_chat_open: false}).on("session_created", function(session, event) {
+                // display the PIN of the current session
+                console.log("Session_PIN "+session.pin);
+                session_pin=session.pin;
+            });*/
+            //Surfly.session().startLeader();
         }
     }
     else{
         console.log("Surfly was unable to initialize properly.")
     }
 });
-     
+
 function callme()
      {
      SurflySession=Surfly.session({start_with_chat_open: false}).startLeader();
-     alert(session.pin);
      }
 </script>
-</head>
-<body>
-TESTING
-<div class="chat_msg">
-</div>
-<!-- <button onclick= callme()">Start ME</button>-->
-</body>
+        <button onclick= "callme()">Start a session</button>
+    </body>
 </html>
