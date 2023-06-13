@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Side-by-Side iframes with Surfly Session</title>
+    <script>
+         var SurflySession;
+         function startSurflySession() {
+        (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+        l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+        l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+        (window,document,'script','Surfly');
+        var settings = {
+        // Surfly session options can be set here, or at the Company/Plan levels.
+        widget_key: '513065a5492743e6a6340aec09b7e4d1',
+        private_session: false, // to make sure only logged in agents can join the call
+        password_required: false,
+        host_switching_allowed: true,
+        block_until_agent_joins: false
+        };
+       
+        Surfly.init(settings, function(initResult) {
+            if (initResult.success) {
+                // API calls can now be made!
+                if (!Surfly.isInsideSession) {
+                   
+                    SurflySession=Surfly.session({start_with_chat_open: false,start_with_videochat_on: false,url: "https://www.wikipedia.org/"}).startLeader("#leader");
+                }
+            }
+            else{
+                console.log("Surfly was unable to initialize properly.")
+            }
+            Surfly.on('session_created', function(session, event) {
+                console.log('Session', session.followerLink, 'has just started');
+                var iframe = document.getElementById("follower");
+                iframe.src = session.followerLink;
+            });
+        });
+        
+    }
+
+    function endSurflySession() {
+        SurflySession.end();
+
+    }
+
+    var isControlRequested = false;
+
+      function toggleControlSession() {
+        if (isControlRequested) {
+          SurflySession.giveControl(1);
+          document.getElementById("toggleButton").innerText = "Give Control";
+          isControlRequested = false;
+        } else {
+          SurflySession.requestControl();
+          document.getElementById("toggleButton").innerText = "Request Control";
+          isControlRequested = true;
+        }
+      }
+    </script>
+    <style>
+      #container {
+        display: flex;
+        
+      }
+      .iframe-container {
+        width: 50%;
+      }
+
+      .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div class="iframe-container">
+        <iframe id="leader"></iframe>
+      </div>
+      <div class="iframe-container">
+        <iframe id="follower"></iframe>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <button class="button" onclick="startSurflySession()">Start Surfly Session</button>
+      <button class="button" onclick="endSurflySession()">End Surfly Session</button>
+      <button id="toggleButton" class="button" onclick="toggleControlSession()">Give Control</button>
+    </div>
+  </body>
+</html>
