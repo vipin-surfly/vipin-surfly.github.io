@@ -14,23 +14,17 @@ var settings = {
     };
     
 
-  document.querySelector('#joinSessionForm').addEventListener('submit', function(event) {
-			event.preventDefault();
-			joinSession();
-		});
-
-		function joinSession() {
+  
+function joinSession() {
 			var joinCode = document.querySelector('#joinSessionCodeInput').value;
     Surfly.init(settings, function(initResult) {
 SurflySession=Surfly.session({}, "https://surfly.com/"+joinCode).startFollower(null,null);
 });
 			
-		}
+}
   </script>
   <body>
-    <form id="joinSessionForm">
 		<input type="text" id="joinSessionCodeInput" placeholder="Co-Booking Code" required>
-		<button type="submit">Join</button>
-	</form>
+		<button type="submit"  onclick="joinSession()">Join</button>
   </body>
 </html>
