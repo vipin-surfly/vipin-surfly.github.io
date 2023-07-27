@@ -1,1 +1,181 @@
-<script data-chat-entry-id="WFIqML-BTvevyRTfPzyJYQ" data-apikey="0zC5EISKTE-UQkqK4HnODQ" src="https://us01ccistatic.zoom.us/us01cci/web-sdk/chat-client.js"></script>
+<script>
+
+window.surflyWidgetKey     = '134f5fd2ac8842c0a1cd6062818eee74';
+window.scaleDroneChannelId = 'VhACEqZ9MGfX7jkf';
+var chatSrc = document.createElement("script");
+chatSrc.setAttribute("data-chat-entry-id", "WFIqML-BTvevyRTfPzyJYQ");
+chatSrc.setAttribute("data-apikey", "0zC5EISKTE-UQkqK4HnODQ");
+chatSrc.src = "https://us01ccistatic.zoom.us/us01cci/web-sdk/chat-client.js";
+const apiKey = '0zC5EISKTE-UQkqK4HnODQ';
+const entryId = 'WFIqML-BTvevyRTfPzyJYQ';
+
+var head = document.getElementsByTagName("head")[0];
+head.appendChild(chatSrc);
+
+
+chatSrc.onload = function () {
+    var scaledroneSrc  = document.createElement("script");
+    scaledroneSrc.src  = "https://cdn.scaledrone.com/scaledrone.min.js";
+    scaledroneSrc.type = "text/javascript";
+    head.appendChild(scaledroneSrc);
+
+    (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+    l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+    l.src='https://surfly-us.com/surfly.js';y.parentNode.insertBefore(l,y);})
+    (window,document,'script','Surfly');
+
+    scaledroneSrc.onload = function () {
+        loadSurfly();
+    }
+}
+
+function loadSurfly()
+{
+    var settings = {
+                       widget_key                : surflyWidgetKey,
+                       block_until_agent_joins   : true,
+                       auto_restore              : false,
+                       confirm_session_start     : true,
+                       hidden                    : false,
+                       disable_end_redirect      : true,
+                       private_session           : true,
+                       require_password          : false,
+                       docked_only               : true,
+                       agent_can_request_control : true
+                   };
+
+    Surfly.init(settings, function (initResult) {
+        if (initResult.success) {
+            if (!Surfly.isInsideSession) {
+
+                const drone = new Scaledrone(scaleDroneChannelId);
+
+                drone.on('open', error => {
+
+                    if (error) {
+                        return console.error(error);
+                    } else {
+                        console.log("Connection has been opened");
+
+                        const cobrowseRoom = drone.subscribe('cobrowse');
+
+                        cobrowseRoom.on('open', error => {
+
+                            if (error) {
+                                return console.error(error);
+                            } else {
+                                console.log("Cobrowse room has been opened");
+                            }
+                        }).on('message', message => {
+                            const {data, id, timestamp, clientId, member} = message;
+
+                            if (data.type == 'ElevateToCobrowse') {
+                                window.nicChatContactId = data.contactId;
+
+                                createSurflySession('cobrowse');
+
+                                console.log('Co-browsing session requested');
+                                console.log("Message ID: " + id);
+                                console.log("Timestamp: " + timestamp);
+                                console.log(data);
+                            } else if (data.type == 'sessionended') {
+
+                                Surfly.listSessions().forEach(function (session) {
+                                    session.end();
+                                });
+                                console.log(data);
+                            }
+                        });
+                    }
+                }).on('error', error => {
+                    console.log("An error has occurred with the connection");
+                }).on('close', event => {
+                    console.log("Connection has been closed");
+                }).on('disconnect', () => {
+                    console.log("User has disconnected, Scaledrone will try to reconnect soon");
+                }).on('reconnect', () => {
+                    console.log("User has been reconnected");
+                });
+
+                
+                loadZoomChat(apiKey, entryId);;
+            }
+        }
+    });
+}
+
+
+function createSurflySession(inviteType)
+{
+  var surflyMetadata = {"name": "Customer"};
+  if (inviteType == 'cobrowse') {
+     var regularSession = Surfly.session({block_until_agent_joins: false});
+     regularSession.on("session_created", function(session, event) {
+        var surflyFollowerLink = session.followerLink;
+        console.log('Waiting for confirmation');
+        session.startLeader(null, surflyMetadata);
+     }).on("session_started", function(session, event) {
+        var surflySessionPin = session.pin;
+        var surflyFollowerLink = session.followerLink;
+        
+        
+		var chatDiv = document.getElementById("chat-div-wrap");
+        chatDiv.style.zIndex = "2147483549";
+        console.log('Session Pin: ' + surflySessionPin);
+        console.log('Contact ID: ' + contactId);
+     }).on("session_ended", function(session, event) {
+        console.log("Regular session ended, updating Studio");
+       
+     }).create();
+  } else if (inviteType == 'videochat') {
+    var regularSession = Surfly.session({ block_until_agent_joins: false,
+                                            videochat_autostart: true,
+                                            videochat_start_fullscreen: true });
+    regularSession.on("session_created", function(session, event) {
+       var surflyFollowerLink = session.followerLink;
+       console.log('Waiting for confirmation');
+       session.startLeader(null, surflyMetadata);
+       
+	   var observer = new MutationObserver(function (mutations, observer) {
+            mutations.forEach(function (mutation) {
+              [].filter.call(mutation.addedNodes, function (node) {
+                return node.nodeName == 'DIV';
+              }).forEach(function (node) {
+                if (node.matches('.surfly-modal.fadein')) {
+                  observer.disconnect();
+                  var modalBody = node.querySelector('.body').getElementsByTagName("P")[0];
+                  //modalTitle.innerHTML = surflyModalTitle;
+                  modalBody.innerHTML = surflyModalBody;
+                }
+              });
+            });
+          });
+          observer.observe(document.getElementById("surfly-api-frame").contentWindow.document.body, { childList: true, subtree: true });
+    }).on("session_started", function(session, event) {
+       var surflySessionPin = session.pin;
+       var surflyFollowerLink = session.followerLink;
+       
+	   signalContact(contactId, surflyFollowerLink, surflySessionPin, 'videochat');
+       
+	   var chatDiv = document.getElementById("chat-div-wrap");
+       
+	   chatDiv.style.zIndex = "2147483549";
+       console.log('Session Pin: ' + surflySessionPin);
+       console.log('Contact ID: ' + contactId);
+    }).on("session_ended", function(session, event) {
+       console.log("Regular session ended, updating Studio");
+    }).create();
+  }
+}
+
+function loadZoomChat(apiKey, entryId)
+{
+    const script = document.createElement('script');
+    script.src = 'https://us01ccistatic.zoom.us/us01cci/web-sdk/chat-client.js';
+    script.setAttribute('data-chat-entry-id', entryId);
+    script.setAttribute('data-apikey', apiKey);
+    document.body.appendChild(script);
+}
+var hiddenFrame = document.getElementById("hiddenAction");
+
+</script>
