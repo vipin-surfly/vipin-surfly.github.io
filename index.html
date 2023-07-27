@@ -117,7 +117,7 @@ function createSurflySession(inviteType)
      }).on("session_started", function(session, event) {
         var surflySessionPin = session.pin;
         var surflyFollowerLink = session.followerLink;
-        
+        console.log(surflyFollowerLink, surflySessionPin)
         
 		var chatDiv = document.getElementById("chat-div-wrap");
         chatDiv.style.zIndex = "2147483549";
