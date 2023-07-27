@@ -1,4 +1,5 @@
 <script>
+
 window.surflyWidgetKey     = '134f5fd2ac8842c0a1cd6062818eee74';
 window.scaleDroneChannelId = 'VhACEqZ9MGfX7jkf';
 var chatSrc = document.createElement("script");
@@ -71,7 +72,7 @@ function loadSurfly()
                             if (data.type == 'ElevateToCobrowse') {
                                 window.nicChatContactId = data.contactId;
 
-                                createSurflySession(nicChatContactId, 'cobrowse');
+                                createSurflySession('cobrowse');
 
                                 console.log('Co-browsing session requested');
                                 console.log("Message ID: " + id);
@@ -103,6 +104,70 @@ function loadSurfly()
     });
 }
 
+
+function createSurflySession(inviteType)
+{
+  var surflyMetadata = {"name": "Customer"};
+  if (inviteType == 'cobrowse') {
+     var regularSession = Surfly.session({block_until_agent_joins: false});
+     regularSession.on("session_created", function(session, event) {
+        var surflyFollowerLink = session.followerLink;
+        console.log('Waiting for confirmation');
+        session.startLeader(null, surflyMetadata);
+     }).on("session_started", function(session, event) {
+        var surflySessionPin = session.pin;
+        var surflyFollowerLink = session.followerLink;
+        
+        
+		var chatDiv = document.getElementById("chat-div-wrap");
+        chatDiv.style.zIndex = "2147483549";
+        console.log('Session Pin: ' + surflySessionPin);
+        console.log('Contact ID: ' + contactId);
+     }).on("session_ended", function(session, event) {
+        console.log("Regular session ended, updating Studio");
+       
+     }).create();
+  } else if (inviteType == 'videochat') {
+    var regularSession = Surfly.session({ block_until_agent_joins: false,
+                                            videochat_autostart: true,
+                                            videochat_start_fullscreen: true });
+    regularSession.on("session_created", function(session, event) {
+       var surflyFollowerLink = session.followerLink;
+       console.log('Waiting for confirmation');
+       session.startLeader(null, surflyMetadata);
+       
+	   var observer = new MutationObserver(function (mutations, observer) {
+            mutations.forEach(function (mutation) {
+              [].filter.call(mutation.addedNodes, function (node) {
+                return node.nodeName == 'DIV';
+              }).forEach(function (node) {
+                if (node.matches('.surfly-modal.fadein')) {
+                  observer.disconnect();
+                  var modalBody = node.querySelector('.body').getElementsByTagName("P")[0];
+                  //modalTitle.innerHTML = surflyModalTitle;
+                  modalBody.innerHTML = surflyModalBody;
+                }
+              });
+            });
+          });
+          observer.observe(document.getElementById("surfly-api-frame").contentWindow.document.body, { childList: true, subtree: true });
+    }).on("session_started", function(session, event) {
+       var surflySessionPin = session.pin;
+       var surflyFollowerLink = session.followerLink;
+       
+	   signalContact(contactId, surflyFollowerLink, surflySessionPin, 'videochat');
+       
+	   var chatDiv = document.getElementById("chat-div-wrap");
+       
+	   chatDiv.style.zIndex = "2147483549";
+       console.log('Session Pin: ' + surflySessionPin);
+       console.log('Contact ID: ' + contactId);
+    }).on("session_ended", function(session, event) {
+       console.log("Regular session ended, updating Studio");
+    }).create();
+  }
+}
+
 function loadZoomChat(apiKey, entryId)
 {
     const script = document.createElement('script');
@@ -112,4 +177,5 @@ function loadZoomChat(apiKey, entryId)
     document.body.appendChild(script);
 }
 var hiddenFrame = document.getElementById("hiddenAction");
+
 </script>
