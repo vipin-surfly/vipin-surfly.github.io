@@ -26,8 +26,7 @@
         const params = {
           Bucket: 'cathay-scobrowsing',
           Key: fileName,
-          Body: file,
-          ACL: 'public-read' // Set the desired ACL for the uploaded object
+          Body: file
         };
 
         s3.upload(params, (err, data) => {
