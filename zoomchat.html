@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nice Chat Example</title>
+    <title>Zoom Chat Example</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
     <style>
         #container {
@@ -17,13 +17,15 @@
 </body>
     <script>
 
-var chatSrc = document.createElement("script");
-chatSrc.src = "https://us01ccistatic.zoom.us/us01cci/web-sdk/chat-client.js";
+const script = document.createElement("script");
+script.setAttribute("data-chat-entry-id", "WFIqML-BTvevyRTfPzyJYQ");
+script.setAttribute("data-apikey", "0zC5EISKTE-UQkqK4HnODQ");
+script.src = "https://us01ccistatic.zoom.us/us01cci/web-sdk/chat-client.js";
 
-var head = document.getElementsByTagName("head")[0];
-head.appendChild(chatSrc);
+const head = document.querySelector("head");
+head.appendChild(script);
 
-chatSrc.onload = function () {
+script.onload = function () {
 
     (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
     l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
@@ -37,8 +39,8 @@ chatSrc.onload = function () {
     var followerlink;
     var socket = io.connect('https://vipin.eu-1.sharedwithexpose.com');
 
-        socket.on('co-browse', function(data) {
-            console.log("Engagement ID is "+data);
+        socket.on('nic_contactid', function(data) {
+            console.log("ContactID is "+data);
 
             Surfly.init(settings, function(initResult) {
                 console.log("Surfly Initializing");
@@ -60,7 +62,7 @@ chatSrc.onload = function () {
                 {
                     console.log('Session', session.followerLink);
                     var sendData = {
-                                    engagement_ID: data,
+                                    niccontactID: data,
                                     followerLink: session.followerLink
                                     };
                     socket.send(JSON.stringify(sendData));
@@ -68,18 +70,8 @@ chatSrc.onload = function () {
             });
         });
         console.log(followerlink);
-        initializeChatZoom();
 }
-        
-function initializeChatZoom() {
-    const data_chat_entry_id = "WFIqML-BTvevyRTfPzyJYQ";
-    const data_apikey = "0zC5EISKTE-UQkqK4HnODQ";
   
-    console.log('Initializing Zoom Chat');
-}
-
-
-
 
 </script>
 </html>
