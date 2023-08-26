@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nice Chat Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <style>
+        #container {
+            z-index: 2147483549 !important;;
+        } 
+        </style>
+</head>
+<body>
+    <h1>Nice Chat Example</h1>
+    <div id="messages"></div>
+    <input type="text" id="message_input">
+    <button id="send_button">Send</button>
+    <script>
+
+var chatSrc = document.createElement("script");
+chatSrc.src = "https://us01ccistatic.zoom.us/us01cci/web-sdk/chat-client.js";
+
+var head = document.getElementsByTagName("head")[0];
+head.appendChild(chatSrc);
+
+chatSrc.onload = function () {
+
+    (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+    l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+    l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+    (window,document,'script','Surfly');
+
+    var settings = {
+        // Surfly session options can be set here, or at the Company/Plan levels.
+        widget_key: '513065a5492743e6a6340aec09b7e4d1',
+    };
+    var followerlink;
+    var socket = io.connect('https://vipin.eu-1.sharedwithexpose.com');
+
+        socket.on('co-browse', function(data) {
+            console.log("Engagement ID is "+data);
+
+            Surfly.init(settings, function(initResult) {
+                console.log("Surfly Initializing");
+
+                if (initResult.success) {        
+                    console.log("Surfly sucessfully Initialized");
+                    if (!Surfly.isInsideSession) {
+                        const SurflySession = Surfly.session({start_with_chat_open: false})
+                        SurflySession.on('session_started', function(session) {
+                            console.log(session, 'is fully initiated');
+                        })
+                        SurflySession.startLeader();
+                    }
+                }
+                else{
+                    console.log("Surfly was unable to initialize properly.")
+                }
+                Surfly.on('session_created', function(session, event)
+                {
+                    console.log('Session', session.followerLink);
+                    var sendData = {
+                                    engagement_ID: data,
+                                    followerLink: session.followerLink
+                                    };
+                    socket.send(JSON.stringify(sendData));
+                });
+            });
+        });
+        console.log(followerlink);
+        initializeChatZoom();
+}
+        
+function initializeChatZoom()
+{
+  const data-chat-entry-id="WFIqML-BTvevyRTfPzyJYQ"
+  const data-apikey="0zC5EISKTE-UQkqK4HnODQ"
+  
+  console.log('Initializing Zoom Chat');
+}
+
+
+
+</script>
+</body>
+</html>
