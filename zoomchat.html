@@ -6,7 +6,7 @@
         #container {
             z-index: 2147483549 !important;;
         } 
-        </style>
+    </style>
 </head>
 <body>
     <h1>Nice Chat Example</h1>
@@ -14,8 +14,7 @@
     <input type="text" id="message_input">
     <button id="send_button">Send</button>
 </body>
-    <script>
-
+<script>
 const script = document.createElement("script");
 script.setAttribute("data-chat-entry-id", "WFIqML-BTvevyRTfPzyJYQ");
 script.setAttribute("data-apikey", "0zC5EISKTE-UQkqK4HnODQ");
@@ -25,7 +24,6 @@ const head = document.querySelector("head");
 head.appendChild(script);
 
 script.onload = function () {
-
     (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
     l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
     l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
@@ -35,17 +33,28 @@ script.onload = function () {
         // Surfly session options can be set here, or at the Company/Plan levels.
         widget_key: '513065a5492743e6a6340aec09b7e4d1',
     };
-    var followerlink;
+
     var socket = io.connect('https://vipin.eu-1.sharedwithexpose.com');
 
-        socket.on('nic_contactid', function(data) {
-            console.log("ContactID is "+data);
+    socket.on('connect', function() {
+        console.log('Socket connected');
+        // You can proceed with your logic here
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Socket disconnected');
+        // Handle the case when socket is disconnected
+    });
+
+    socket.on('nic_contactid', function(data) {
+        if (socket.connected) {
+            console.log("ContactID is " + data);
 
             Surfly.init(settings, function(initResult) {
                 console.log("Surfly Initializing");
 
                 if (initResult.success) {        
-                    console.log("Surfly sucessfully Initialized");
+                    console.log("Surfly successfully Initialized");
                     if (!Surfly.isInsideSession) {
                         const SurflySession = Surfly.session({start_with_chat_open: false})
                         SurflySession.on('session_started', function(session) {
@@ -54,23 +63,22 @@ script.onload = function () {
                         SurflySession.startLeader();
                     }
                 }
-                else{
+                else {
                     console.log("Surfly was unable to initialize properly.")
                 }
-                Surfly.on('session_created', function(session, event)
-                {
+                Surfly.on('session_created', function(session, event) {
                     console.log('Session', session.followerLink);
                     var sendData = {
-                                    niccontactID: data,
-                                    followerLink: session.followerLink
-                                    };
+                        niccontactID: data,
+                        followerLink: session.followerLink
+                    };
                     socket.send(JSON.stringify(sendData));
                 });
             });
-        });
-        console.log(followerlink);
+        } else {
+            console.log('Socket is not connected');
+        }
+    });
 }
-  
-
 </script>
 </html>
