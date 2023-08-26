@@ -47,7 +47,7 @@ script.onload = function () {
         // Handle the case when socket is disconnected
     });
 
-    socket.on('nic_contactid', function(data) {
+    socket.on('co-browse', function(data) {
         if (socket.connected) {
             console.log("ContactID is " + data);
 
