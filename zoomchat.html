@@ -16,7 +16,7 @@
 </body>
 <script src="https://vipin.eu-1.sharedwithexpose.com/socket.io.js"></script>
 <script>
-const socket = io.connect("https://vipin.eu-1.sharedwithexpose.com/cobrowse");
+const socket = io.connect("https://vipin.eu-1.sharedwithexpose.com/sendcobrose");
 const script = document.createElement("script");
 script.setAttribute("data-chat-entry-id", "WFIqML-BTvevyRTfPzyJYQ");
 script.setAttribute("data-apikey", "0zC5EISKTE-UQkqK4HnODQ");
@@ -39,7 +39,9 @@ script.onload = function () {
    socket.on("connect", () => {
   console.log(socket.connected); // true
 });
-socket.on("data", () => { console.log(data); });
+socket.on('chat message', (message) => {
+    console.log(message);
+}
 console.log(socket.listeners("co-browse"));
     socket.on("error", (error) => {
       console.log("Socket Error" +error);
