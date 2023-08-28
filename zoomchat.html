@@ -43,7 +43,7 @@ script.onload = function () {
 });
 
     socket.on("error", (error) => {
-      console.log("Socket Error");
+      console.log("Socket Error" +error);
 });
 
     socket.io.on("ping", () => {
