@@ -37,7 +37,8 @@ script.onload = function () {
     };
     console.log("Socket testing");
    socket.on("connect", () => {
-  console.log(socket.connected); // true
+  //console.log(socket.connected); // true
+       console.log("Connected");
 });
 socket.on('chat message', (message) => {
     console.log(message);
