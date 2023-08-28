@@ -39,11 +39,11 @@ script.onload = function () {
    socket.on("connect", () => {
   //console.log(socket.connected); // true
        console.log("Connected");
+       console.log(socket.listeners("co-browse"));
 });
 socket.on('chat message', (message) => {
     console.log(message);
 }
-console.log(socket.listeners("co-browse"));
     socket.on("error", (error) => {
       console.log("Socket Error" +error);
 });
