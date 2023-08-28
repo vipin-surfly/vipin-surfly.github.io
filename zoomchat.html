@@ -36,9 +36,11 @@ script.onload = function () {
         widget_key: '513065a5492743e6a6340aec09b7e4d1',
     };
     console.log("Socket testing");
-    socket.on("connect", () => { console.log("Working"); });
+   socket.on("connect", () => {
+  console.log(socket.connected); // true
+});
 socket.on("data", () => { console.log(data); });
-
+console.log(socket.listeners("co-browse"));
     socket.on("error", (error) => {
       console.log("Socket Error" +error);
 });
