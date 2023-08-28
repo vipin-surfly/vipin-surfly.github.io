@@ -37,9 +37,8 @@ script.onload = function () {
     };
     console.log("Socket testing");
    socket.on("connect", (msg) => {
-  //console.log(socket.connected); // true
-       console.log("Connected "+msg);
-       //console.log(socket.listeners("co-browse"));
+        // console.log("Connected "+msg);
+       console.log(socket.listeners("co-browse"));
 });
   
 
