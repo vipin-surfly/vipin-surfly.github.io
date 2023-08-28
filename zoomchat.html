@@ -37,9 +37,20 @@ script.onload = function () {
     };
     console.log("Socket testing");
     socket.on('co-browse', (data) => {
+        console.log("Socket working");
     console.log('Received co-browse event:', data);
     // Process the data as needed
 });
+
+    socket.on("error", (error) => {
+      console.log("Socket Error");
+});
+
+    socket.io.on("ping", () => {
+       console.log("Socket Reconnect");
+});
+
+    
 
     }
 </script>
