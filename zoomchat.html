@@ -36,9 +36,9 @@ script.onload = function () {
         widget_key: '513065a5492743e6a6340aec09b7e4d1',
     };
     console.log("Socket testing");
-   socket.on('connect', (message) => {
-        console.log(message)
-        console.log(socket.id)
+   socket.on('co-browse', (message) => {
+    console.log('Received co-browse event:', message);
+    // Process the co-browse data as needed
 });
   
 
