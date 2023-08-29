@@ -62,7 +62,10 @@ script.onload = function () {
                                     engagement_id: engagement_id,
                                     followerLink: session.followerLink
                                     };
-                    socket.send(JSON.stringify(sendData));
+                    socket.emit('session_created', sendData, (response) => {
+                        console.log(response); // "got it"
+                    });
+                    
                 });
             });
        
