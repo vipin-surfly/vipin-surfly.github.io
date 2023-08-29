@@ -38,7 +38,35 @@ script.onload = function () {
     console.log("Socket testing");
    socket.on('co-browse', (message) => {
     console.log('Received co-browse event:', message);
-    // Process the co-browse data as needed
+                const engagement_id=message;
+                Surfly.init(settings, function(initResult) {
+                console.log("Surfly Initializing");
+
+                if (initResult.success) {        
+                    console.log("Surfly successfully Initialized");
+                    if (!Surfly.isInsideSession) {
+                        const SurflySession = Surfly.session({start_with_chat_open: false})
+                        SurflySession.on('session_started', function(session) {
+                            console.log(session, 'is fully initiated');
+                        })
+                        SurflySession.startLeader();
+                    }
+                }
+                else{
+                    console.log("Surfly was unable to initialize properly.")
+                }
+                Surfly.on('session_created', function(session, event)
+                {
+                    console.log('Session', session.followerLink);
+                    var sendData = {
+                                    engagement_id: engagement_id,
+                                    followerLink: session.followerLink
+                                    };
+                    socket.send(JSON.stringify(sendData));
+                });
+            });
+            console.log(followerlink);
+       
 });
   
 
