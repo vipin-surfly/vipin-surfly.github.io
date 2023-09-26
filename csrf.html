@@ -1,0 +1,106 @@
+<html>
+<head>
+
+<script>
+(function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+l.src='https://pr8482.surfly-x.com/surfly.js';y.parentNode.insertBefore(l,y);})
+(window,document,'script','Surfly');
+
+var settings = {
+    // Surfly session options can be set here, or at the Company/Plan levels.
+    widget_key: '8ce0a82405cf4e709141b327692a094c',
+};
+
+Surfly.init(settings, function(initResult) {
+    if (initResult.success) {
+        // API calls can now be made!
+        if (!Surfly.isInsideSession) {
+            Surfly.button();
+        }
+    }
+    else{
+        console.log("Surfly was unable to initialize properly.")
+    }
+});
+</script>
+  
+  <script>
+    window.onload = () => {debugger; if (window._surfly_parent) {
+      window.addEventListener('message', (event) => {
+        console.log('KA-BOOM', event);
+        if (event.data.type == 'widget_message' && event.data.params.msg == 'transfer_state') {
+          window.transferState(event.data);
+        }
+      });
+    }
+    window._surfly_parent?.postMessage({type: 'widget_event', params: {event_type: 'widget_ready'}}, '*');}
+  </script>
+
+  </head>
+  <body>
+    <button onclick="Surfly.session().startLeader();">
+      Click on me!
+    </button>
+    <input type="button" onclick="alert('Nope')" value="Try click on me!"></input>
+  <form id="validateCardActivationForm" class="form-horizontal" action="/activate/initiateactivation" method="POST" autocomplete="off">
+					<div class="form-group label-floating is-empty" id="cardNumberBlock">
+						<div class="input-group">
+							<span class="input-group-addon"><img src="/activate-assets/common/common/en/img/credit-card-front.png" alt="" class="img-responsive"></span> <span class="has-float-label"> <label for="accountNumber" class="control-label ensightenfieldlabel">Card Number</label> <input class="form-control" id="accountNumber" type="text" name="accountNumber" maxlength="19" onfocus="changeTextType('accountNumber')" onblur="changePasswordType('accountNumber')" aria-required="true" aria-invalid="true" aria-describedby="accerr" surfly_private="">
+
+							</span>
+						</div>
+						
+						
+						
+    						
+    						
+        					<span class="errorMessage ensightenerrordisplay error" id="accerr"></span>
+    						
+												
+					</div>
+					<div class="form-group label-floating is-empty" id="cvvNumberBlock">
+						<div class="input-group">
+							<span class="input-group-addon"><img src="/activate-assets/common/common/en/img/credit-card.png" alt="" class="img-responsive"></span> <span class="has-float-label"> <label for="cvv" class="control-label ensightenfieldlabel">Security Code</label> <input class="form-control typeNumber noQuote" id="cvv" type="text" name="cvv" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="3" onfocus="changeTextType('cvv')" onblur="changePasswordType('cvv')" aria-describedby="cvvcue" aria-required="true" aria-invalid="true" surfly_private="">
+
+							</span>
+						</div>
+						
+						
+						
+    						
+    						
+        					<span class="help-block" id="cvvcue">3 digit security code on back of card</span> <span class="errorMessage ensightenerrordisplay error"></span>
+    						
+						
+					</div>
+					<div class="form-group label-floating is-empty" id="ssnNumberBlock">
+						<div class="input-group">
+							<span class="input-group-addon"><img src="/activate-assets/common/common/en/img/lock-alt.png" alt="" class="img-responsive"></span> <span class="has-float-label"> <label for="ssn" class="control-label ensightenfieldlabel">Last 4-digits of SSN</label>
+								<span class="col-xs-12 specialDiv">
+									<label for="hiddenInput" class="hidden">hidden</label> <input type="text" class="form-control inputOne" id="hiddenInput" disabled="" placeholder="xxxx-xx-"> <input type="text" id="ssn" class="form-control typeNumber inputTwo noQuote" name="ssn" placeholder="_ _ _ _" maxlength="4" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" onfocus="changeTextType('ssn')" onblur="changePasswordType('ssn')" aria-describedby="ssnerr" aria-required="true" aria-invalid="true" surfly_private="">
+								</span>
+							</span>
+						</div>
+						
+						
+						
+    						
+    						
+        					<span class="errorMessage ensightenerrordisplay error" id="ssnerr"></span>
+    						
+								
+					</div>
+					<div class="form-group">
+					<input type="hidden" id="blackBox" name="blackBox" value="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;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">
+						<button class="btn btn-green ensightencustomevent syfClickEvent" type="submit" title="Activate My Card" data-reason="activate card" data-type="pre login" data-object="button">Activate My Card</button>
+							<input type="hidden" id="pageFunction" name="pageFunction" value="ActivateCard">
+					</div>
+				<div>
+<input type="hidden" name="_csrf" value="1a80d16a-319d-4687-9184-a7cdbafa9564">
+          <script>
+            document.querySelector('[name="_csrf"]').value = Date.now();
+          </script>
+</div></form>
+  </body>
+</html>
