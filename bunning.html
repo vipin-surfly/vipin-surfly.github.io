@@ -1,36 +1,100 @@
 <html>
-<body>
-<h1></h1>Welcome to Bunnings Online Store AU</h1>
-    <script>
-        // Surfly snippet
-        (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
-        l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
-        l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
-        (window,document,'script','Surfly');
+<!DOCTYPE html>
+<html lang="en">
 
-        // The preferred way is to set session options from the Surfly web interface,
-        // so in most cases you only need to provide a widget key below,
-        // but you can also override any options here
-        var settings = {
-            widget_key: "513065a5492743e6a6340aec09b7e4d1",
-            hide_until_agent_joins: true,
-            url: "https://www.bunnings.com.au"
-        };
-
-        // Surfly.init() must be called before any other API call
-        Surfly.init(settings, function(init) {
-        if (init.success && !Surfly.isInsideSession) {
-            Surfly.session()
-            .on("session_created", function(session, event) {
-                // display the PIN of the current session
-                document.querySelector("#sessidtarget").innerText = session.pin;
-            })
-            .startLeader();
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bunning Landing page</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        });
-    </script>
 
-    <h1>Landing Page Example</h1>
-    Session Code: <span id="sessidtarget">...</span>
+        header {
+            background-color: #0d5257;
+            color: white;
+            text-align: left; /* Align text to the left */
+            padding: 1em;
+            display: flex; /* Use flexbox to align items horizontally */
+            align-items: center; /* Center items vertically within the flex container */
+        }
+
+        header img {
+            margin-right: 10px; /* Add right margin for spacing between image and heading */
+        }
+
+        header h1 {
+            margin: 0; /* Remove default margin for the heading */
+        }
+
+        footer {
+            background-color: #0d5257;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        table {
+    width: 100%; /* Set table width to 100% */
+    margin: 0 auto; /* Center the table horizontally */
+}
+
+/* CSS for table cells (th and td elements) */
+th, td {
+   
+    text-align: left;
+    
+}
+
+/* Additional styling for th elements (table headers) */
+th {
+    background-color: #f2f2f2;
+}
+       
+    </style>
+</head>
+
+<body>
+    <header>
+      <img src="bunnings.png">
+       <h1>Company name</h1>  
+    </header>
+
+    <main>
+      <br>
+      <br>
+      <br>
+    <table>
+  <tr>
+    <th style="font-size: 20px; border: none; background-color: transparent;">Online Store</th>
+    <th style="font-size: 20px; border: none; background-color: transparent;">Bunnings Connect</th>
+    <th style="font-size: 20px; border: none; background-color: transparent;">PowerPass sites</th>
+  </tr>
+  </tr>
+  <tr>
+    <td><a href="http://www.bunnings.com.au" style="border: 2px solid red; padding: 10px; display: inline-block; text-decoration: none; color: red;">Online Store AU</a></td>
+    <td><a href="http://connect.bunnings.com.au" style="border: 2px solid red; padding: 10px; display: inline-block; text-decoration: none; color: red;">Bunnings Connect</a></td>
+    <td><a href="http://www.bunningspowerpass.com.au" style="border: 2px solid red; padding: 10px; display: inline-block; text-decoration: none; color: red;">PowerPass AU</a></td>
+  </tr>
+  <tr>
+    <td><a href="http://www.bunnings.co.nz" style="border: 2px solid red; padding: 10px; display: inline-block; text-decoration: none; color: red;">Online Store NZ</a></td>
+    <td></td>
+    <td><a href="http://www.bunningspowerpass.co.nz" style="border: 2px solid red; padding: 10px; display: inline-block; text-decoration: none; color: red;">PowerPass NZ</a></td>
+  </tr>
+  <tr>
+
+  </tr>
+</table>     
+    </main>
+
+    <footer>
+    </footer>
 </body>
+
 </html>
