@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap">
+    <title>Surfly JS Examples</title>
+
+
+
+    <script>
+        var checkboxEmbed;
+        var widgetkey;
+        //to store the widget key entered
+        var SurflySession;
+        // The preferred way is to set session options from the Surfly web interface,
+        // so in most cases you only need to provide a widget key below,
+        // but you can also override any options here
+        var settings = {
+            //Provide widget key
+            widget_key: "",
+            //Hide all Surfly UI until somebody else joins
+            hide_until_agent_joins: true,
+            //Mask elements
+            hide_element_by_selector: "",
+            //Do not require a consent pop up
+            session_start_confirmation: false,
+            //Start a new session if the page is refreshed
+            session_autorestore_enabled: false,
+            //disable video for landing page but keep it avaialble in the UI
+            videochat: true,
+            start_with_videochat_on: false,
+            //select starting URL when agent joins
+            url: "www.wikipedia.com",
+            script_embedded: ""
+        };
+
+        function SScheckBox() {
+var checkboxEmbed = document.getElementById('checkboxEmbed');
+    if (checkboxEmbed) {
+        checkboxEmbed.addEventListener('change', function () {
+            if (checkboxEmbed.checked) {
+                settings.script_embedded = 'https://demo.surfly.com/script/screenshare_button_script.js';
+                addLogLine('floating screenshare button will be added to the session');
+            } else {
+                settings.script_embedded = "";
+                addLogLine('floating screenshare button will not be added to the session');
+            }
+        });
+    } else {
+        console.error('Element with ID "checkboxEmbed" not found.');
+    };}
+
+        function LoadSurflyProd() {
+    const widgetInput = document.getElementById("widgetKey");
+
+    // Check if widgetInput is null
+    if (!widgetInput) {
+        alert("Widget Key input element not found.");
+        return;
+    }
+    settings.widget_key = widgetInput.value;
+
+
+    // Surfly snippet must be on any page that must start a session 
+    (function (s, u, r, f, l, y) {
+        s[f] = s[f] || { init: function () { s[f].q = arguments } };
+        l = u.createElement(r); y = u.getElementsByTagName(r)[0]; l.async = 1;
+        l.src = 'https://surfly.com/surfly.js'; y.parentNode.insertBefore(l, y);
+    })
+        (window, document, 'script', 'Surfly');
+
+    // Log agent_status event info
+    if (!Surfly.agentAvailable) {
+        console.log(event);
+        addLogLine('No agents are available');
+    }
+
+    if (Surfly.agentAvailable) {
+        console.log(Surfly.agent);
+        addLogLine('Agents are available');
+    }
+    SScheckBox();
+}
+
+
+function LoadSurflyUat() {
+    const widgetInput = document.getElementById("widgetKey");
+
+    // Check if widgetInput is null
+    if (!widgetInput) {
+        alert("Widget Key input element not found.");
+        return;
+    }
+    settings.widget_key = widgetInput.value;
+
+
+    // Surfly snippet must be on any page that must start a session 
+    (function (s, u, r, f, l, y) {
+        s[f] = s[f] || { init: function () { s[f].q = arguments } };
+        l = u.createElement(r); y = u.getElementsByTagName(r)[0]; l.async = 1;
+        l.src = 'https://uat.surfly.com/surfly.js'; y.parentNode.insertBefore(l, y);
+    })
+        (window, document, 'script', 'Surfly');
+
+    // Log agent_status event info
+    if (!Surfly.agentAvailable) {
+        console.log(event);
+        addLogLine('No agents are available');
+    }
+
+    if (Surfly.agentAvailable) {
+        console.log(Surfly.agent);
+        addLogLine('Agents are available');
+    }
+    SScheckBox();
+}
+
+
+        function StartSession() {
+            // Surfly.init() must be called before any other API call
+            Surfly.init(settings, function (init) {
+                if (init.success && !Surfly.isInsideSession) {
+                    SurflySession = Surfly.session().startLeader("#leader")
+                } else {
+                    console.log("Surfly was unable to initialize properly.");
+                }
+
+                //log session_created event info
+                Surfly.on("session_created", function (session, event) {
+                    addLogLine('session '+ session._sessionId + ' has just started');
+                    addLogLine('join link: '+ session.followerLink);
+                    addLogLine('session Pin: ' + session.pin);
+                    console.log('session pin', session.pin);
+                    console.log('session created', event);
+                })
+//log session_started event info
+                    .on('session_started', function (session, event) {
+                        console.log('session_started_event:', event);
+                        console.log('session_started_session:', session);
+                        console.log('session is queued:' + session.queued);
+                        console.log('Leader Link:' + session.leaderLink);
+                        console.log('Follower Link:' + session.followerLink);
+                        addLogLine('session in queue: ' +session.queued);
+                        addLogLine('you are tab owner: '+ +session._isLeader);
+                    })
+
+                    //log participant_joined event info
+                    .on('participant_joined', function (session, event) {
+                        console.log('participant joined:', event);
+                        console.log('participant joined:', session);
+                        console.log('Participant:', event.clientIndex, 'joined the session');
+                        addLogLine('participant ' + event.clientIndex + ' joined');
+                    })
+
+                    .on('viewer_joined', function (session, event) {
+                        console.log('viewer_joined_e:', event);
+                        console.log('viewer_joined_s:', session);
+                        console.log('Participant count updated to:', event.count);
+                        addLogLine('participant count updated to: '+ event.count);
+                    })
+
+                    //log participant_left event info
+                    .on('participant_left', function (session, event) {
+                        console.log('participant_left:', event);
+                        console.log('participant_left:', session);
+                        addLogLine('participant ' + event.clientIndex + ' left');
+                    })
+                    .on('viewer_left', function (session, event) {
+                        console.log('viewer_left_e:', event);
+                        console.log('viewer_left_s:', session);
+                        console.log('Participant count updated to:', event.count);
+                        addLogLine('participant count updated to: '+ event.count);
+                    })
+                    .on('relocate_start', function (session, event) {
+                        console.log('relocate_start:', event);
+                        console.log('relocate_start:', session);
+                    })
+                    .on('error', function (session, event) {
+                        console.log('error:', event);
+                        console.log('error:', session);
+                    })
+                    .on('tab_control', function (session, event) {
+                        console.log('tab_control:', event);
+                        console.log('tab_control:', session);
+                    })
+
+                Surfly.on('session_ended', function (session) {
+                    console.log(session, 'has ended');
+                    addLogLine('session ended at: '+ session._openTs);
+                });
+            });
+        }
+
+        function endSurflySession() {
+            SurflySession.end();
+
+        }
+
+        var isControlRequested = false;
+
+        function toggleHostSession() {
+            if (isControlRequested) {
+                SurflySession.giveControl(1);
+                isControlRequested = false;
+            } else {
+                SurflySession.requestControl();
+                isControlRequested = true;
+            }
+        }
+
+function shareScreen() {
+    SurflySession.startScreensharing();
+}
+
+
+
+function TakeBackControl() {
+    SurflySession.revokeTabControl();
+}
+
+function ToggleVideochatFullscreen() {
+        SurflySession.toggleVideochatFullscreen();
+}
+function ToggleVideochatMicrophone() {
+        SurflySession.toggleVideochatMicrophone();
+}
+function ToggleDrawing() {
+        SurflySession.toggleDrawing();
+}      
+//add relocate function
+//add host function
+
+
+        // Function to add a line of text to log
+        function addLogLine(t) {
+            const outputElement = document.getElementById('surfly_log');
+            if (outputElement) {
+                outputElement.innerHTML += '&bull; '+ t + '<br>';
+            } else {
+                console.error('surfly_log not found');
+            }
+        }
+    </script>
+
+
+</head>
+
+<body style="font-family: 'Nunito', sans-serif;margin: 0px; padding: 0px; display: flex; flex-direction: column; height: 100vh;align-content:center;">
+    <h1 style="margin-left: 10px;">Using Surfly Javascript</h1>
+    <p style="margin: 10px;"><b>1.</b> Enter your Widget Key<br>
+        <span style="font-size:.9rem;color:gray;">Integrations > Widget Key<br></span>
+        <b>2.</b> Click <b>Load Surfly</b> to boot up Surfly JS.<br>
+        <span style="font-size:.9rem;color:gray">This loads Surfly JS on the page<br></span>
+        <b>3.</b> Click <b>Start Session</b> to begin<br>
+        <span style="font-size:.9rem;color:gray">The Surfly session URL will be loaded into the iframe below<br></span>
+    </p>
+    <div style="width: 100vw; display: flex; justify-content: center; align-items: center; border-top: 1px solid #ccc; padding: 10px;">
+
+        <input type="text" id="widgetKey" placeholder="Enter your Widget Key..." style="max-width: 300px; flex-grow: 1; margin-right: 5px;">
+    
+        <button onclick="LoadSurflyProd()" style="margin-right: 30px;">Load Surfly Production</button>
+        <button onclick="LoadSurflyUat()" style="margin-right: 30px;">Load Surfly UAT</button>
+        <p>Add hovering button to start Screen Share: <input type="checkbox" id="checkboxEmbed"></p>
+        <button onclick="StartSession()">Start Session</button>
+    
+    </div>
+    
+    
+    
+    <!-- Event Logger Window -->
+    <div style="height:80vh;flex: 1; border: 1px solid #ccc; display: flex; overflow: scroll; padding: 2px;">
+        <div style="flex: .3; padding-right: 10px;overflow:scroll">
+            <h2 style="margin-left: 10px;">Log:</h2>
+            <p id="surfly_log" style="font-size:.8rem";></p>
+        </div>
+        <div style="flex: 1; padding-left: 10px;">
+            <iframe id="leader" src="https://www.example.com" frameborder="0"
+            style="flex: 2; border: 1px solid gray; width: 100%; height: 100%;"></iframe>
+        </div>
+    </div>
+
+    <!-- Panel of Buttons -->
+    <div
+    style="width: 100vw; display: flex; justify-content: center; align-items: center; border-top: 1px solid #ccc; padding: 10px;">
+        <button style="display:none" onclick="toggleHostSession()">Switch Host</button>
+        <button style="margin-right: 30px;" onclick="TakeBackControl()">Take Control</button>
+        <button style="margin-right: 30px;" onclick="ToggleVideochatFullscreen()">Toggle Videochat Full Screen</button>
+        <button style="margin-right: 30px;" onclick="ToggleVideochatMicrophone()">Mute/Unmute</button>
+        <button style="margin-right: 30px;" onclick="ToggleDrawing()">Toggle Drawing</button>
+        <button style="margin-right: 30px;" onclick="shareScreen()">Share Screen</button>
+        <button style="margin-right: 30px;" onclick="endSurflySession()">End Session</button>
+    </div>
+
+</body>
+
+</html>
