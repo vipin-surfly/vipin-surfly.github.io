@@ -14,19 +14,10 @@ Surfly.init(settings, function(initResult) {
     if (initResult.success) {
         // API calls can now be made!
         if (!Surfly.isInsideSession) {
-          
-            Surfly.button();
-          var endBtn = document.getElementById('btn-end-queued-session');
-            endBtn.addEventListener('click', function() {
-              Surfly.listSessions()[0].sendMessage({message: 'end'}, window.location.origin);
-            });
+           Surfly.currentSession  .on('message', function(session, event) {
+             console.log(event.data.message);
+  });
         }
-      Surfly.currentSession
-  .on('message', function(session, event) {
-    if (event.data.message === 'end') {
-      // reply to the message
-      sessionEnd();
-    }
     }
     else{
         console.log("Surfly was unable to initialize properly.")
