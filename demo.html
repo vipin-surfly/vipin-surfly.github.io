@@ -19,7 +19,7 @@ Surfly.init(settings, function(initResult) {
     }
     else{
         Surfly.currentSession.on('message', function(session, event) {
-          console.log(event.data.message);
+          console.log("HELLO: "+event.data.message);
   });
     }
 });
