@@ -16,6 +16,11 @@ Surfly.init(settings, function(initResult) {
         if (!Surfly.isInsideSession) {
             Surfly.button();
         }
+      else {
+    Surfly.currentSession.on('message', function(session, event) {
+      console.log("HHH "+event.data.message);
+    });
+  }
     }
     else{
        
