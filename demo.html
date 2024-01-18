@@ -18,11 +18,12 @@ Surfly.init(settings, function(initResult) {
         }
     }
     else{
-        Surfly.currentSession.on('message', function(session, event) {
-          console.log("HELLO: "+event.data.message);
-  });
+       
     }
 });
+     Surfly.currentSession.on('message', function(session, event) {
+          console.log("HELLO: "+event.data.message);
+  });
   </script>
    <button id="btn-end-queued-session" type="button">Click Me!</button> 
 </html>
