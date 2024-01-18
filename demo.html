@@ -21,6 +21,12 @@ Surfly.init(settings, function(initResult) {
               Surfly.listSessions()[0].sendMessage({message: 'end'}, window.location.origin);
             });
         }
+      Surfly.currentSession
+  .on('message', function(session, event) {
+    if (event.data.message === 'end') {
+      // reply to the message
+      sessionEnd();
+    }
     }
     else{
         console.log("Surfly was unable to initialize properly.")
