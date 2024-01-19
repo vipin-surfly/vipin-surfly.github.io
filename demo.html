@@ -19,9 +19,7 @@ Surfly.init(settings, function(initResult) {
       else {
     Surfly.currentSession.on('message', function(session, event) {
       console.log("HHH "+event.data.message);
-      const newButton = document.createElement('button');
-      newButton.textContent = 'Click new me!';
-      document.body.appendChild(newButton);
+       Surfly.currentSession.sendMessage({message: 'Recvd'}, window.location.origin);
     });
   }
     }
