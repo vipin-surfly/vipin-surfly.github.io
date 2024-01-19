@@ -28,6 +28,7 @@ Surfly.init(settings, function(initResult) {
     }
   Surfly.currentSession.on('message', function(session, event) {
           console.log("HELLO: "+event.data.message);
+    Surfly.currentSession.sendMessage({message: 'Recvd'}, window.location.origin);
 });
      
   });
