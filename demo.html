@@ -20,7 +20,7 @@ Surfly.init(settings, function(initResult) {
     Surfly.currentSession.on('message', function(session, event) {
       console.log("HHH "+event.data.message);
       const newButton = document.createElement('button');
-      newButton.textContent = 'Click me!';
+      newButton.textContent = 'Click new me!';
       document.body.appendChild(newButton);
     });
   }
@@ -33,6 +33,9 @@ Surfly.init(settings, function(initResult) {
 });
      
   });
+function myFunction() {
+ Surfly.listSessions()[0].sendMessage({message: 'ALL good'}, window.location.origin);
+}
   </script>
-   <button id="btn-end-queued-session" type="button">Click Me!</button> 
+   <button id="btn-end-queued-session" type="button" onclick="myFunction()">Click Me!</button> 
 </html>
