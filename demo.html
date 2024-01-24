@@ -31,12 +31,7 @@ Surfly.listSessions()[0].on('message', function(session, event) {
        Surfly.currentSession.sendMessage({message: 'Recvd'}, window.location.origin);
     });
   }
-    }
-    else{
-       
-    }
-  
-     
+    } 
   });
 function myFunction() {
  Surfly.listSessions()[0].sendMessage({message: 'ALL good'}, window.location.origin);
