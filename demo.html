@@ -16,10 +16,11 @@ Surfly.init(settings, function(initResult) {
       Surfly.on("session_started", ()=> {
 Surfly.listSessions()[0].on('message', function(session, event) {
           console.log("HELLO: "+event.data.message);
-    Surfly.currentSession.sendMessage({message: 'Recvd'}, window.location.origin);
 });
-        
-      })
+        Surfly.on("session_restored", ()=> {
+Surfly.listSessions()[0].on('message', function(session, event) {
+          console.log("HELLO: "+event.data.message);
+});
         // API calls can now be made!
         if (!Surfly.isInsideSession) {
             Surfly.button();
