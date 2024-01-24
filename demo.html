@@ -12,6 +12,14 @@ var settings = {
 
 Surfly.init(settings, function(initResult) {
     if (initResult.success) {
+
+      Surfly.on("session_started", ()=> {
+Surfly.listSessions()[0].on('message', function(session, event) {
+          console.log("HELLO: "+event.data.message);
+    Surfly.currentSession.sendMessage({message: 'Recvd'}, window.location.origin);
+});
+        
+      })
         // API calls can now be made!
         if (!Surfly.isInsideSession) {
             Surfly.button();
@@ -26,10 +34,7 @@ Surfly.init(settings, function(initResult) {
     else{
        
     }
-  Surfly.currentSession.on('message', function(session, event) {
-          console.log("HELLO: "+event.data.message);
-    Surfly.currentSession.sendMessage({message: 'Recvd'}, window.location.origin);
-});
+  
      
   });
 function myFunction() {
