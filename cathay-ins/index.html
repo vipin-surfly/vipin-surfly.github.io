@@ -116,6 +116,23 @@ Surfly.init(settings, function(initResult) {
         console.log("Surfly was unable to initialize properly.")
     }
 });
+
+Surfly.on('relocated', function(session,event) {
+
+  console.log('THIS IS URL' +event.url);
+
+
+var urlPattern = /^https:\/\/www\.bing\.com:443\//;
+
+// Test if the variable matches the URL pattern
+if (urlPattern.test(event.url)) {
+ session.end()
+} else {
+  console.log("Variable does not match the URL pattern.");
+}
+
+});
+
     </script>
     <title>Travel Insurance Form</title>
 </head>
