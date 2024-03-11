@@ -1,8 +1,71 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Third Page</title>
-  </head>
-  <body>
-      Agent is cobrowse session are not allowed
-  </body>
-<html>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        p {
+            color: #555;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script type="Application/javascript">
+        function redirectToBing() {
+            window.location.href = "https://www.bing.com";
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Page Number: 3 (Private Information)</h1>
+        <p>This page has private info and cannot be opened inside a session with agents.</p>
+        
+        <div>
+            <a href="https://vipin-gh.surfly.com/cathay-ins/page-1.html">Go to First Page</a>
+            <br>
+            <a href="https://vipin-gh.surfly.com/cathay-ins/page-2.html">Go to Second Page</a>
+            <br>
+            <button onclick="redirectToBing()">Different domain (Bing.com)</button>
+        </div>
+    </div>
+</body>
+</html>
