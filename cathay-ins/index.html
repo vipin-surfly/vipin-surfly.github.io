@@ -89,14 +89,14 @@
             window.location.href = "https://www.bing.com";
         }
 
-        (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+       (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
 l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
-l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+l.src='https://surfly.online/surfly.js';y.parentNode.insertBefore(l,y);})
 (window,document,'script','Surfly');
 
 var settings = {
     // Surfly session options can be set here, or at the Company/Plan levels.
-    widget_key: '',
+    widget_key: 'a229cad4c84f42cdbd028a31ce7541b5',
 };
 
 Surfly.init(settings, function(initResult) {
@@ -105,6 +105,7 @@ Surfly.init(settings, function(initResult) {
         if (!Surfly.isInsideSession) {
             Surfly.button();
         }
+
     Surfly.on('relocated', function(session,event) {
 
   console.log('THIS IS URL' +event.url);
@@ -120,7 +121,7 @@ if (urlPattern.test(event.url)) {
 }
 
 
-});
+});    
     }
     else{
         console.log("Surfly was unable to initialize properly.")
