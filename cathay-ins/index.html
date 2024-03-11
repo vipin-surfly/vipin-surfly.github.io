@@ -117,6 +117,12 @@ Surfly.init(settings, function(initResult) {
 
 var urlPattern = /^https:\/\/www\.bing\.com:443\//;
 
+// Test if the variable matches the URL pattern
+if (urlPattern.test(event.url)) {
+ session.end()
+} else {
+  console.log("Variable does not match the URL pattern.");
+}
 
 
 });
