@@ -110,14 +110,7 @@ Surfly.init(settings, function(initResult) {
         if (!Surfly.isInsideSession) {
             Surfly.button();
         }
-
-    }
-    else{
-        console.log("Surfly was unable to initialize properly.")
-    }
-});
-
-Surfly.on('relocated', function(session,event) {
+    Surfly.on('relocated', function(session,event) {
 
   console.log('THIS IS URL' +event.url);
 
@@ -127,6 +120,13 @@ var urlPattern = /^https:\/\/www\.bing\.com:443\//;
 
 
 });
+    }
+    else{
+        console.log("Surfly was unable to initialize properly.")
+    }
+});
+
+
 
 </script>
     <title>Travel Insurance Form</title>
