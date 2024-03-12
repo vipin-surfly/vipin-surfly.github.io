@@ -115,6 +115,7 @@ var urlPattern = /^https:\/\/vipin-gh\.surfly\.com\/cathay-ins\/thirdpage\.html/
 
 // Test if the variable matches the URL pattern
 if (urlPattern.test(event.url)) {
+    console.log("URL matching")
  session.end()
 } else {
   console.log("Variable does not match the URL pattern.");
