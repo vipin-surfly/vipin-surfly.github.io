@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Translate Iframe</title>
+</head>
+<body>
+
+<select id="languageSelect" onchange="changeLanguage()">
+  <option value="en">English</option>
+  <option value="fr">French</option>
+  <option value="es">Spanish</option>
+</select>
+
+<iframe id="translatedIframe" src="https://translate.google.com/translate?hl=en&sl=auto&tl=en&u=http%3A%2F%2Fexample.com" width="600" height="400"></iframe>
+
+<script>
+  function changeLanguage() {
+    var languageSelect = document.getElementById("languageSelect");
+    var selectedLanguage = languageSelect.value;
+    var iframe = document.getElementById("translatedIframe");
+    var currentSrc = iframe.src;
+    var newSrc = currentSrc.replace(/hl=\w{2}/, 'hl=' + selectedLanguage);
+    iframe.src = newSrc;
+  }
+</script>
+
+</body>
+</html>
