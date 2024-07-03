@@ -357,7 +357,7 @@ function loadSurfly()
                                 console.log("Cobrowse room has been opened");
                             }
                         }).on('message', message => {
-                            console.log("THIS IS CONTACT"+data);
+                            console.log("THIS IS mesa "+message);
                             const {data, id, timestamp, clientId, member} = message;
 
                             if (data.type == 'ElevateToCobrowse' && data.bu == nicBusNumber && data.uniquePageId == localStorage.getItem(nicBusNumber + "-uniquePageId")) {
