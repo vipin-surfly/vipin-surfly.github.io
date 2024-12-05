@@ -17,7 +17,13 @@
     }
 </style>
 </head>
-<body>
+<body>const sessions = Surfly.listSessions();
+
+if (sessions.length === 0) {
+    console.log("The array is empty.");
+} else {
+    console.log("The array is not empty. It contains:", sessions);
+}
     <h1>Custom ID example</h1>
     <!-- Button that will trigger the popup -->
     <button id="btn-request-session" class="hidden">Get help</button>
@@ -72,7 +78,10 @@
 
     // sessionStart() is called when a user clicks the Agree button
     function sessionStart() {
-        // hide the Agree button so that it cannot be clicked twice
+        const sessions = Surfly.listSessions();
+
+        if (sessions.length === 0) {
+             // hide the Agree button so that it cannot be clicked twice
         document.querySelector("#btn-start-session").classList.add("hidden");
 
         // Create a co-browsing session
@@ -94,6 +103,12 @@
             })
             // Start the session immediately
             .startLeader();
+        } else {
+             var showId = document.querySelector("#session-id");
+                showId.textContent =   Surfly.listSessions()[0].pin;
+        }
+        
+       
     }
     </script>
 </body>
