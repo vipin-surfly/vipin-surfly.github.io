@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<title>Surfly Security Implementation</title>
+<style>
+#title {
+text-align: center;
+margin: 100px 100px 50px 100px;
+}
+#instruction-title {
+    text-align: center;
+    margin: 0px 100px 25px 100px;
+}
+#instructions {
+    text-align: center;
+    margin: 0px 180px 80px 180px;
+    font-size: 16px;
+    line-height: 2;
+}
+.example-form {
+    width: 800px;
+    margin: 50px auto;
+}
+</style>
+</head>
+
+<body>
+    <h1 id="title">Surfly Security Implementation</h1>
+    <h2 id="instruction-title">Instructions</h2>
+    <p id="instructions">
+        1. Open the link for joining the co-browsing session as a follower: <a id="followerLink" target="_blank" style="font-weight:bold;text-decoration:underline;">follower link</a>
+        <br />
+        2. Fill in the form fields. You can see that the password field is masked by default for the follower, but we've also applied <a href="https://docs.surfly.com/security-functionalities.html#header-field-masking" target="_blank">field masking</a> to the "Address" field with our surfly_private attribute.
+        <br />
+        3. Switch control by clicking the hand icon in the dock. You'll see that the address field disappeared completely on the follower's side and that the submit button got a different color and became unclickable for the follower. This was applied through <a href="https://docs.surfly.com/security-functionalities.html#header-control-dependent-appearance" target="_blank">control dependent appearance</a>.
+    </p>
+    <form class="example-form">
+      <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+      </div>
+      <div class="form-group">
+        <label for="inputAddress">Address</label>
+        <input type="text" class="form-control" id="inputAddress" placeholder="Korte Leidsedwarsstraat 12 1017RC Amsterdam" surfly_private>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Subscribe to our newsletter</label>
+      </div>
+      <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+    </form>
+
+    <script>
+      (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+      l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+      l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+      (window,document,'script','Surfly');
+      var settings = {
+          widget_key: "24f023888ca9419484b74f10eca984b2",
+          hide_until_agent_joins: true,
+          start_docked: true,
+          newurl: false
+      };
+      Surfly.init(settings, function(init) {
+      if (init.success) {
+        if (!Surfly.isInsideSession) {
+          Surfly.session()
+          .on('session_started', function(session, event) {
+              document.querySelector("#followerLink").href = session.followerLink;
+          })
+          .startLeader();
+        }
+        Surfly.on('control', function(session, event) {
+            var address = document.getElementById('inputAddress');
+            var submit = document.getElementById('btn-submit');
+            if (event.to==0) {
+              address.disabled = false;
+              address.style.display = 'block';
+              submit.disabled = false;
+              submit.style.backgroundColor = '#337ab7';
+              submit.style.borderColor = '#2e6da4';
+            }
+            else {
+              address.disabled = true;
+              address.style.display = 'none';
+              submit.disabled = true;
+              submit.style.backgroundColor = '#f18787';
+              submit.style.borderColor = '#f18787';
+            }
+        });
+      }
+      });
+    </script>
+
+</body>
+</html>
