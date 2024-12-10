@@ -30,11 +30,13 @@
             Surfly.session().startLeader();
             var pin=Surfly.listSessions()[0].pin;
             document.querySelector("#sessidtarget").innerHTML = Surfly.listSessions()[0].pin;
+			popup.style.display = 'flex';
         }
         else
         {
             var pin=Surfly.listSessions()[0].pin;
             document.querySelector("#sessidtarget").innerHTML = Surfly.listSessions()[0].pin;
+		popup.style.display = 'flex';
         }
            		
     }
