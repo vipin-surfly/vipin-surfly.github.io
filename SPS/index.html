@@ -3,43 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex">
-<style>
-    #surfly-session-modal {
-        position: absolute;
-        margin: 200px 30%;
-        background: lightcoral;
-        padding: 10px;
-        border-radius: 5px;
-    }
-    .hidden {
-        display: none;
-    }
-</style>
-</head>
-<body>
-    <h1>Custom ID example</h1>
-    <!-- Button that will trigger the popup -->
-    <button id="btn-request-session" class="hidden">Get help</button>
-
-    <!-- Create a popup -->
-    <div id="surfly-session-modal" class="hidden">
-        <h4>Welcome to co-browsing</h4>
-
-        <!-- Add a session agreement the user has to agree to before co-browsing is initiated -->
-        <p id="session-agreement">You are about to start a co-browsing session. By clicking "Agree" you allow the helpdesk agent to browse the website with you.</p>
-
-        <!-- Placeholder for displaying the session PIN -->
-        <p id="session-id"></p>
-
-        <!-- Button to start the co-browsing session -->
-        <button class="modal-button" id="btn-start-session">Agree</button>
-
-        <!-- Cancel button is shown until the agent joins -->
-        <button class="modal-button hidden" id="btn-cancel-session">Cancel</button>
-    </div>
-
-    <script>
+<meta name="robots" content="noindex"><script>
     //Add the Surfly snippet
     (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
     l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
@@ -57,53 +21,61 @@
     // Initialize the JS API
     Surfly.init(settings, function(init) {
         if (init.success && !Surfly.isInsideSession) {
-            // If API is initialized successfully, show the start button
-            var startButton = document.querySelector("#btn-request-session");
-            startButton.classList.remove("hidden");
-            startButton.addEventListener("click", function() {
-                // when a user clicks the start button, show the start popup
-                var popup = document.querySelector("#surfly-session-modal").classList.remove("hidden");
-            });
-
-            // when the Agree button is clicked, start a co-browsing session
-            document.querySelector("#btn-start-session").addEventListener("click", sessionStart);
         }
     });
 
-    // sessionStart() is called when a user clicks the Agree button
-    function sessionStart() {
+    function openSurflyPopup() {
         const sessions = Surfly.listSessions();
-
-        if (sessions.length === 0) {
-             // hide the Agree button so that it cannot be clicked twice
-        document.querySelector("#btn-start-session").classList.add("hidden");
-
-        // Create a co-browsing session
-        Surfly.session()
-            // When the session is started, show the session PIN so that it can be passed to the helpdesk agent
-            .on("session_created", function(session, event) {
-                // display the session PIN
-                var showId = document.querySelector("#session-id");
-                showId.textContent = session.pin;
-
-                // Display the Cancel button
-                var cancelButton = document.querySelector("#btn-cancel-session");
-                cancelButton.classList.remove("hidden");
-
-                // If the Cancel button is clicked, end the session
-                cancelButton.addEventListener("click", function() {
-                    session.end();
-                });
-            })
-            // Start the session immediately
-            .startLeader();
-        } else {
-             var showId = document.querySelector("#session-id");
-                showId.textContent =   Surfly.listSessions()[0].pin;
+		if (sessions.length === 0) {
+            Surfly.session().startLeader();
+            var pin=Surfly.listSessions()[0].pin;
+            document.querySelector("#sessidtarget").innerHTML = Surfly.listSessions()[0].pin;
         }
-        
-       
+        else
+        {
+            var pin=Surfly.listSessions()[0].pin;
+            document.querySelector("#sessidtarget").innerHTML = Surfly.listSessions()[0].pin;
+        }
+           		
     }
     </script>
+
+<style>
+.surfly-modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,.4);
+    display: none;
+    align-items: center;
+    justify-content: center
+}
+
+    .surfly-modal.fadein {
+        animation-duration: .2s;
+        animation-name: fadein
+    }
+</style>
+</head>
+<body>
+    <h1>Custom ID example</h1>
+<button id="imgCoBrowsing1" onclick="openSurflyPopup()" style="background-color: transparent; border: none">
+
+    <!-- Create a popup -->
+<!-- Create a popup -->
+<div id="surpopup" class="surfly-modal fadein">
+    <div class="content easein">
+        <div class="body">
+            <p id="sessidtarget" class="sessionid">...</p>
+        </div>
+        <span id="closebutton" class="cancel surfly-popup-close"></span>
+    </div>
+</div>
+
+    
 </body>
 </html>
