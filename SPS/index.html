@@ -25,6 +25,7 @@
     });
 
     function openSurflyPopup() {
+	    var popup = document.querySelector("#surpopup");
         const sessions = Surfly.listSessions();
 		if (sessions.length === 0) {
             Surfly.session().startLeader();
