@@ -23,24 +23,23 @@
         if (init.success && !Surfly.isInsideSession) {
         }
     });
-
-    function openSurflyPopup() {
-	    var popup = document.querySelector("#surpopup");
-        const sessions = Surfly.listSessions();
-		if (sessions.length === 0) {
-            Surfly.session().startLeader();
-            var pin=Surfly.listSessions()[0].pin;
-            document.querySelector("#sessidtarget").innerHTML = Surfly.listSessions()[0].pin;
-			popup.style.display = 'flex';
-        }
-        else
-        {
-            var pin=Surfly.listSessions()[0].pin;
-            document.querySelector("#sessidtarget").innerHTML = Surfly.listSessions()[0].pin;
-		popup.style.display = 'flex';
-        }
-           		
-    }
+function startCobrowsing () {
+  Surfly.session({start_with_chat_open: false}).on('session_ended', function(session, event) {
+  const url = "https://surveymonkey.com/r/HLNHCSL"; // Replace with the URL you want to open
+    const popupName = "Surveymonkey";   // Name for the popup window
+    const popupFeatures = `
+        width=400,
+        height=300,
+        top=${(window.screen.height - 300) / 2},
+        left=${(window.screen.width - 400) / 2},
+        resizable=yes,
+        scrollbars=yes
+    `;
+    window.open(url, popupName, popupFeatures);
+    })
+    .startLeader();
+}
+    
     </script>
 
 <style>
@@ -66,7 +65,7 @@
 </head>
 <body>
     <h1>Custom ID example</h1>
-<button id="imgCoBrowsing1" onclick="openSurflyPopup()">
+<button id="imgCoBrowsing1" onclick="startCobrowsing()">
 
     <!-- Create a popup -->
 <!-- Create a popup -->
