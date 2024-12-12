@@ -14,8 +14,7 @@
     var settings = {
         widget_key: "513065a5492743e6a6340aec09b7e4d1",
         block_until_agent_joins: false,
-        hide_until_agent_joins: true,
-        end_of_session_popup_url: "https://vipin-gh.surfly.com/SPS/"  // link to a survey page that will be shown after session end
+        hide_until_agent_joins: true
     };
 
     // Initialize the JS API
@@ -43,41 +42,11 @@ function startCobrowsing () {
     </script>
 
 <style>
-.surfly-modal {
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,.4);
-    display: none;
-    align-items: center;
-    justify-content: center
-}
 
-    .surfly-modal.fadein {
-        animation-duration: .2s;
-        animation-name: fadein
-    }
 </style>
 </head>
 <body>
     <h1>Custom ID example</h1>
-<button id="imgCoBrowsing1" onclick="startCobrowsing()">
-
-    <!-- Create a popup -->
-<!-- Create a popup -->
-<div id="surpopup" class="surfly-modal fadein">
-    <div class="content easein">
-        <div class="body">
-            <p id="sessidtarget" class="sessionid">...</p>
-        </div>
-        <span id="closebutton" class="cancel surfly-popup-close"></span>
-    </div>
-</div>
-
-    
+<button id="imgCoBrowsing1" onclick="startCobrowsing()">    
 </body>
 </html>
