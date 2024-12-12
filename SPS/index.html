@@ -4,11 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <script>
-    //Add the Surfly snippet
-    (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
-    l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
-    l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
-    (window,document,'script','Surfly');
+    // Add the Surfly snippet
+    (function(s, u, r, f, l, y) {
+        s[f] = s[f] || { init: function() { s[f].q = arguments } };
+        l = u.createElement(r);
+        y = u.getElementsByTagName(r)[0];
+        l.async = 1;
+        l.src = 'https://surfly.com/surfly.js';
+        y.parentNode.insertBefore(l, y);
+    })(window, document, 'script', 'Surfly');
 
     // Surfly session options, you need to provide your own widget key
     var settings = {
@@ -22,31 +26,74 @@
         if (init.success && !Surfly.isInsideSession) {
         }
     });
-function startCobrowsing () {
-  Surfly.session({start_with_chat_open: false}).on('session_ended', function(session, event) {
-  const url = "https://surveymonkey.com/r/HLNHCSL"; // Replace with the URL you want to open
-    const popupName = "Surveymonkey";   // Name for the popup window
-    const popupFeatures = `
-        width=400,
-        height=300,
-        top=${(window.screen.height - 300) / 2},
-        left=${(window.screen.width - 400) / 2},
-        resizable=yes,
-        scrollbars=yes
-    `;
-    window.open(url, popupName, popupFeatures);
-    })
-    .startLeader();
-}
-    
-    </script>
+
+    function startCobrowsing() {
+        Surfly.session({ start_with_chat_open: false }).on('session_ended', function(session, event) {
+            openIframe("https://surveymonkey.com/r/HLNHCSL");
+        }).startLeader();
+    }
+
+    function openIframe(url) {
+        const iframe = document.getElementById("iframeContent");
+        iframe.src = url;
+        document.getElementById("floatingIframe").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+    }
+
+    function closeIframe() {
+        document.getElementById("floatingIframe").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("iframeContent").src = ""; // Clear iframe content
+    }
+</script>
 
 <style>
+    #floatingIframe {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 400px;
+        height: 300px;
+        transform: translate(-50%, -50%);
+        border: 2px solid #ccc;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none;
+        background: #fff;
+    }
 
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+
+    #closeButton {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #ff5c5c;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
 </style>
 </head>
 <body>
     <h1>Custom ID example</h1>
-<button type="button" onclick="startCobrowsing();">Click Me!</button>
+    <button type="button" onclick="startCobrowsing();">Click Me!</button>
+
+    <div id="overlay"></div>
+    <div id="floatingIframe">
+        <button id="closeButton" onclick="closeIframe()">Close</button>
+        <iframe id="iframeContent" src="" frameborder="0" style="width: 100%; height: 90%;"></iframe>
+    </div>
 </body>
 </html>
