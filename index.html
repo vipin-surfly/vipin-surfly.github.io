@@ -25,9 +25,11 @@ Surfly.init(settings, function(initResult) {
 </script>
 </head>
 <body>
-<a href="http://bing.com"  target="_blank" surfly-open-externally>This link should be always open outside the session</a>
-<br>
-<a href="http://bing.com" target="_blank">This link is a normal link</a>
-<br>
+<form>
+  <label for="fname">username:</label><br>
+  <input type="text" id="username" name="username"><br>
+  <label for="lname">Last name:</label><br>
+  <input type="password" id="password" name="password">
+</form>
 </body>
 </html>
