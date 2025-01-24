@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Username & Password on Same Page</title>
+  <title>Standard Login Form with Surfly</title>
   <script>
     (function(s,u,r,f,l,y){
       s[f] = s[f] || { init: function(){ s[f].q = arguments } };
@@ -13,6 +13,7 @@
       y.parentNode.insertBefore(l,y);
     })(window, document, 'script', 'Surfly');
 
+    // Surfly initialization
     var settings = {
       widget_key: '513065a5492743e6a6340aec09b7e4d1'
     };
@@ -27,33 +28,35 @@
         console.log("Surfly was unable to initialize properly.");
       }
     });
-
-    function displayValues(event) {
-      event.preventDefault();  // Prevent actual form submission
-
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-
-      // Display them in a div (or any container) on the same page
-      document.getElementById('result').innerHTML = 
-        '<p><strong>Username:</strong> ' + username + '</p>' +
-        '<p><strong>Password:</strong> ' + password + '</p>';
-    }
   </script>
 </head>
 
 <body>
-  <form id="myForm" onsubmit="displayValues(event)">
+  <!-- 
+    Use method="POST" so the browser sees it as a standard login.
+    action="/login" (or another real endpoint) so the form navigates/loads a new page.
+    This is what triggers the browser's 'Save Password' prompt.
+  -->
+  <form action="/login" method="POST" autocomplete="on">
     <label for="username">Username:</label><br>
-    <input type="text" id="username" name="username" /><br>
-
+    <input 
+      type="text" 
+      id="username" 
+      name="username" 
+      autocomplete="username" 
+      required 
+    /><br><br>
+    
     <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" /><br><br>
-
-    <input type="submit" value="Submit"/>
+    <input 
+      type="password" 
+      id="password" 
+      name="password" 
+      autocomplete="current-password" 
+      required 
+    /><br><br>
+    
+    <button type="submit">Login</button>
   </form>
-
-  <!-- This is where we will show the username & password on the same page -->
-  <div id="result"></div>
 </body>
 </html>
