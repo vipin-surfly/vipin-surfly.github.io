@@ -1,36 +1,59 @@
+<!DOCTYPE html>
 <html>
 <head>
-<script>
-(function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
-l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
-l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
-(window,document,'script','Surfly');
+  <meta charset="utf-8" />
+  <title>Username & Password on Same Page</title>
+  <script>
+    (function(s,u,r,f,l,y){
+      s[f] = s[f] || { init: function(){ s[f].q = arguments } };
+      l = u.createElement(r); 
+      y = u.getElementsByTagName(r)[0]; 
+      l.async = 1;
+      l.src = 'https://surfly.com/surfly.js';
+      y.parentNode.insertBefore(l,y);
+    })(window, document, 'script', 'Surfly');
 
-var settings = {
-    // Surfly session options can be set here, or at the Company/Plan levels.
-    widget_key: '513065a5492743e6a6340aec09b7e4d1',
-};
+    var settings = {
+      widget_key: '513065a5492743e6a6340aec09b7e4d1'
+    };
 
-Surfly.init(settings, function(initResult) {
-    if (initResult.success) {
+    Surfly.init(settings, function(initResult) {
+      if (initResult.success) {
         // API calls can now be made!
         if (!Surfly.isInsideSession) {
-            Surfly.button();
+          Surfly.button();
         }
+      } else {
+        console.log("Surfly was unable to initialize properly.");
+      }
+    });
+
+    function displayValues(event) {
+      event.preventDefault();  // Prevent actual form submission
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Display them in a div (or any container) on the same page
+      document.getElementById('result').innerHTML = 
+        '<p><strong>Username:</strong> ' + username + '</p>' +
+        '<p><strong>Password:</strong> ' + password + '</p>';
     }
-    else{
-        console.log("Surfly was unable to initialize properly.")
-    }
-});
-</script>
+  </script>
 </head>
+
 <body>
-<form action="/" method="get" autocomplete="on">
-  <label for="fname">username:</label><br>
-  <input type="text" id="username" name="username"><br>
-  <label for="lname">password:</label><br>
-  <input type="password" id="password" name="password">
-    <input type="submit">
-</form>
+  <form id="myForm" onsubmit="displayValues(event)">
+    <label for="username">Username:</label><br>
+    <input type="text" id="username" name="username" /><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" /><br><br>
+
+    <input type="submit" value="Submit"/>
+  </form>
+
+  <!-- This is where we will show the username & password on the same page -->
+  <div id="result"></div>
 </body>
 </html>
