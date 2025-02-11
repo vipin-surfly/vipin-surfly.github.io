@@ -7,7 +7,7 @@
     window.addEventListener('message', message => {
       if(message.data.type=="widget_message")
       {
-      console.log(message);  
+      console.log(message.data.params.msg.message);  
       }
 });
 
