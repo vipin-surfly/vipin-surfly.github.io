@@ -5,7 +5,10 @@
   <title>Standard Login Form with Surfly</title>
   <script>
     window.addEventListener('message', message => {
-      console.log(message);   
+      if(message.data.type=="widget_message")
+      {
+      console.log(message);  
+      }
 });
 
   </script>
