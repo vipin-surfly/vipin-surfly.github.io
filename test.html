@@ -1,30 +1,38 @@
 <html>
-  <script>
-    var SurflySession;
+<head>
+<title>ELEMENT_TESTING</title>
+<script>
 (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
 l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
 l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
 (window,document,'script','Surfly');
+
 var settings = {
     // Surfly session options can be set here, or at the Company/Plan levels.
-    widget_key: '9eb008187dca447685c55d80614e1d18',
-    private_session: false, // to make sure only logged in agents can join the call
-    password_required: false,
-    host_switching_allowed: true
-    };
-    
+    widget_key: '513065a5492743e6a6340aec09b7e4d1',
+};
 
-  
-function joinSession() {
-			var joinCode = document.querySelector('#joinSessionCodeInput').value;
-    Surfly.init(settings, function(initResult) {
-SurflySession=Surfly.session({}, "https://surfly.com/"+joinCode).startFollower(null,null);
+Surfly.init(settings, function(initResult) {
+    if (initResult.success) {
+        // API calls can now be made!
+        if (!Surfly.isInsideSession) {
+            Surfly.button();
+        }
+    }
+    else{
+        console.log("Surfly was unable to initialize properly.")
+    }
 });
-			
+</script>
+<style>
+.note {
+  font-size: 120%;
+  color: red;
 }
-  </script>
-  <body>
-		<input type="text" id="joinSessionCodeInput" placeholder="Co-Booking Code" required>
-		<button type="submit"  onclick="joinSession()">Join</button>
-  </body>
+</style>
+</head>
+<body>
+<h1>My <span class="note">Important</span> Heading</h1>
+<p>This is some <span class="note">important</span> text.</p>
+</body>
 </html>
