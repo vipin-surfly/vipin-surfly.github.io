@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Standard Login Form with Surfly</title>
+  <script>
+    window.addEventListener('message', message => {
+      if(message.data.type=="widget_message")
+      {
+      console.log(message.data.params.msg.message);  
+      }
+});
+
+  </script>
+</head>
+
+<body>
+  <!-- 
+    Use method="POST" so the browser sees it as a standard login.
+    action="/login" (or another real endpoint) so the form navigates/loads a new page.
+    This is what triggers the browser's 'Save Password' prompt.
+  -->
+  <iframe src="https://surfly.asia/+vipin_solo/?url=https://www.google.com/" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"></iframe> 
+</body>
+</html>
