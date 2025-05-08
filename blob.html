@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Open PDF from API (static page)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    button { padding: .6rem 1rem; font-size: 1rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Fetch PDF and open in new tab</h1>
+  <button id="openPdfBtn">Open invoice.pdf</button>
+
+  <script>
+    /* URL of your API endpoint that returns raw PDF bytes.
+       For demo purposes this is a public file, but any endpoint
+       that responds with application/pdf will do. */
+    const PDF_API = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+
+    document.getElementById('openPdfBtn').addEventListener('click', async () => {
+      try {
+        // 1️⃣ Fetch the binary data
+        const response = await fetch(PDF_API, { mode: 'cors' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        // 2️⃣ Read it as an ArrayBuffer
+        const arrayBuffer = await response.arrayBuffer();
+
+        // 3️⃣ Build a Blob (tell the browser it’s a PDF)
+        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+
+        // 4️⃣ Turn the Blob into an in-memory object URL
+        const pdfUrl = URL.createObjectURL(blob);
+
+        // 5️⃣ Open in a new tab (or window)
+        window.open(pdfUrl, '_blank');
+
+        // 6️⃣ (Optional) Revoke the object URL when the tab is closed
+        //    so we don't leak memory. We can't detect *when* the user
+        //    closes the tab, but we can schedule a later cleanup.
+        setTimeout(() => URL.revokeObjectURL(pdfUrl), 60_000);
+
+      } catch (err) {
+        console.error(err);
+        alert('Failed to open PDF');
+      }
+    });
+  </script>
+</body>
+</html>
