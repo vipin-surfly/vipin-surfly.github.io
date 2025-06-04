@@ -125,10 +125,14 @@ Webfuse.initSpace(
         console.log('Space:', space);
         console.log('Space ID:', space.id);
         console.log('Space slug:', space.slug);
+        const session = space.session();
+
+        // Start the session
+        const response = await session.start();
     })
     .catch(error => {
         console.error('Failed:', error);
-});
+});r
     </script>
 </head>
 <body>
