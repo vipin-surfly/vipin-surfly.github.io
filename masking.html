@@ -1,68 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Field Example</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Form Example</title>
     <style>
-        /* Optional: Add some styles to the text field and its nested elements */
-        .custom-text-field,
-        .custom-text-field input,
-        .custom-text-field button {
-            /* Add your styles here */
-            font-family: Arial, sans-serif;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 5px;
+        :root {
+            --primary: #3498db;
+            --primary-hover: #2b84c4;
+            --bg: #f5f8fa;
+            --text: #2d3748;
+            --border: #d1d5db;
+            --radius: 8px;
+        }
+
+        /* ------- Global ------- */
+        * {
             box-sizing: border-box;
         }
-        form > div > button {
-  background-color: #3498db;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
 
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ------- Form Card ------- */
+        form {
+            background: #ffffff;
+            padding: 2rem 3rem;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 440px;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        /* ------- Groups & Inputs ------- */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            margin-bottom: 0.35rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+        }
+
+        /* ------- Two‑column layout for CC + CVV ------- */
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* ------- Submit Button ------- */
+        button[type="submit"] {
+            margin-top: 1.25rem;
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--primary);
+            color: #ffffff;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        button[type="submit"]:hover {
+            background: var(--primary-hover);
+        }
     </style>
     <script>
-(function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
-l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
-l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
-(window,document,'script','Surfly');
+        (function (s, u, r, f, l, y) {
+            s[f] = s[f] || { init: function () { s[f].q = arguments; } };
+            l = u.createElement(r);
+            y = u.getElementsByTagName(r)[0];
+            l.async = 1;
+            l.src = "https://surfly.com/surfly.js";
+            y.parentNode.insertBefore(l, y);
+        })(window, document, "script", "Surfly");
 
-var settings = {
-    // Surfly session options can be set here, or at the Company/Plan levels.
-    widget_key: '513065a5492743e6a6340aec09b7e4d1'
-    
-};
+        var settings = {
+            // Surfly session options can be set here, or at the Company/Plan levels.
+            widget_key: "513065a5492743e6a6340aec09b7e4d1",
+        };
 
-Surfly.init(settings, function(initResult) {
-    if (initResult.success) {
-        // API calls can now be made!
-        if (!Surfly.isInsideSession) {
-            Surfly.button();
-        }
-    }
-    else{
-        console.log("Surfly was unable to initialize properly.")
-    }
-});
-</script>
+        Surfly.init(settings, function (initResult) {
+            if (initResult.success) {
+                // API calls can now be made!
+                if (!Surfly.isInsideSession) {
+                    Surfly.button();
+                }
+            } else {
+                console.log("Surfly was unable to initialize properly.");
+            }
+        });
+    </script>
 </head>
 <body>
-<form id="#myTextField:myTextField">
-    <!-- Text field with nested elements -->
-    <div class="custom-text-field">
-        <input type="text" id="myTextField:myTextField" placeholder="Enter text...">
-        <button type="button">Submit</button>
-    </div>
-    <div class="custom-text-field2">
-        <input type="text" id="myTextField2\:myTextField2" placeholder="Enter text...">
-        <button type="button">Submit</button>
-    </div>
-</form>
+    <form id="secureForm">
+        <h1>Secure Registration</h1>
+
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="John Doe" required />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="john@example.com" required />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Create a strong password" required />
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re‑enter password" required />
+        </div>
+
+        <div class="form-group">
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" name="dob" required />
+        </div>
+
+        <div class="form-group">
+            <label for="ssn">Social Security Number</label>
+            <input type="text" id="ssn" name="ssn" placeholder="123‑45‑6789" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="flex: 2">
+                <label for="ccNumber">Credit Card Number</label>
+                <input type="text" id="ccNumber" name="ccNumber" placeholder="1234 5678 9012 3456" />
+            </div>
+            <div class="form-group" style="flex: 1">
+                <label for="cvv">CVV</label>
+                <input type="password" id="cvv" name="cvv" placeholder="123" />
+            </div>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
 </body>
 </html>
