@@ -78,6 +78,7 @@
     .form-row {
       display: flex;
       gap: 1rem;
+      flex-wrap: wrap;
     }
 
     button[type="submit"] {
@@ -98,30 +99,35 @@
       background: var(--primary-hover);
     }
 
-   .sensitive-box {
-  padding: 1.2rem;
-  background: #fff8dc; /* Light yellow for visual emphasis */
-  border: 2px solid #f4c542;
-  border-radius: var(--radius);
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
+    .sensitive-box {
+      padding: 1.2rem;
+      background: #fff8dc;
+      border: 2px solid #f4c542;
+      border-radius: var(--radius);
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
 
-.form-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap; /* Enables wrapping on small screens */
-}
+    a {
+      cursor: pointer;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: var(--primary-hover);
+    }
   </style>
 </head>
 <body>
   <form id="secureForm">
+    <!-- Logo -->
     <div style="text-align: center; margin-bottom: 1rem;">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
-       alt="Company Logo"
-       style="max-width: 100px; height: auto;" />
-</div>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
+           alt="Company Logo"
+           style="max-width: 100px; height: auto;" />
+    </div>
+
     <h1><i class="fas fa-shield-alt"></i> Secure Registration</h1>
 
     <div class="form-group">
@@ -169,11 +175,48 @@
 
     <button type="submit"><i class="fas fa-paper-plane"></i> Submit</button>
 
-<p style="text-align: center; margin-top: 1.5rem;">
-  <a href="https://webfuse.com/+realtime_agent_assist/" style="color: var(--primary); text-decoration: none; font-weight: 600;">
-    ← Need help
-  </a>
-</p>
+    <p style="text-align: center; margin-top: 1.5rem;">
+      <a id="helpLink" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+        ← Need help
+      </a>
+    </p>
   </form>
+
+  <!-- Webfuse JS -->
+  <script>
+    // Attach event handler
+    document.getElementById("helpLink").addEventListener("click", function (e) {
+      e.preventDefault();
+
+      (function (w, e, b, f, u, s) {
+        w[f] = w[f] || {
+          initSpace: function () {
+            return new Promise(resolve => {
+              w[f].q = arguments;
+              w[f].resolve = resolve;
+            });
+          },
+        };
+        u = e.createElement(b);
+        s = e.getElementsByTagName(b)[0];
+        u.async = 1;
+        u.src = 'https://webfuse.com/surfly.js';
+        s.parentNode.insertBefore(u, s);
+      })(window, document, 'script', 'Webfuse');
+
+      Webfuse.initSpace(
+        'wk_04J_ewcQeFB_Wsf_aMjpY5lR15ktuz1C',
+        '273',
+        {}
+      )
+        .then(async space => {
+          const session = space.session();
+          const response = await session.start();
+        })
+        .catch(error => {
+          console.error('Failed:', error);
+        });
+    });
+  </script>
 </body>
 </html>
