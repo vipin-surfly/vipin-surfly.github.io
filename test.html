@@ -24,8 +24,113 @@ Surfly.init(settings, function(initResult) {
     }
 });
 </script>
+
+<script>
+(function () {
+  const el = document.getElementById('gesture-area');
+
+  // Tuning knobs
+  const SWIPE_THRESHOLD_PX = 40;      // how far to count as a swipe
+  const TAP_MAX_TIME_MS    = 250;     // max time between touchstart/end for tap
+  const DOUBLE_TAP_GAP_MS  = 300;     // max delay between two taps for double-tap
+  const TAP_MAX_MOVE_PX    = 10;      // max move to still be a tap
+
+  let startX = 0, startY = 0, startTime = 0, moved = false;
+  let lastTapTime = 0, tapTimeoutId = null;
+
+  function onTouchStart(e) {
+    if (e.touches.length > 1) return; // ignore multi-touch here
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    startTime = Date.now();
+    moved = false;
+  }
+
+  function onTouchMove(e) {
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    if (Math.abs(dx) > TAP_MAX_MOVE_PX || Math.abs(dy) > TAP_MAX_MOVE_PX) {
+      moved = true;
+    }
+  }
+
+  function onTouchEnd(e) {
+    const dt = Date.now() - startTime;
+    // If short and barely moved => tap/double tap
+    if (!moved && dt <= TAP_MAX_TIME_MS) {
+      const now = Date.now();
+      if (now - lastTapTime <= DOUBLE_TAP_GAP_MS) {
+        // It's a double-tap
+        clearTimeout(tapTimeoutId);
+        lastTapTime = 0;
+        onDoubleTap();
+      } else {
+        // Might be a single tap; wait briefly to be sure it's not a double
+        lastTapTime = now;
+        tapTimeoutId = setTimeout(() => {
+          onTap();
+        }, DOUBLE_TAP_GAP_MS + 10);
+      }
+      return;
+    }
+
+    // If moved enough => swipe
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+
+    if (Math.abs(dx) >= SWIPE_THRESHOLD_PX || Math.abs(dy) >= SWIPE_THRESHOLD_PX) {
+      const absX = Math.abs(dx), absY = Math.abs(dy);
+      if (absX > absY) {
+        dx > 0 ? onSwipe('right') : onSwipe('left');
+      } else {
+        dy > 0 ? onSwipe('down') : onSwipe('up');
+      }
+    }
+  }
+
+  function onTap() {
+    console.log('tap');
+    el.textContent = 'Tap detected';
+    myFunction('tap');
+  }
+  function onDoubleTap() {
+    console.log('double-tap');
+    el.textContent = 'Double-tap detected';
+    myFunction('double-tap');
+  }
+  function onSwipe(dir) {
+    console.log('swipe', dir);
+    el.textContent = `Swipe ${dir} detected`;
+    myFunction(`swipe-${dir}`);
+  }
+
+  // Attach listeners (passive:false only if you call preventDefault)
+  el.addEventListener('touchstart', onTouchStart, {passive:true});
+  el.addEventListener('touchmove',  onTouchMove,  {passive:true});
+  el.addEventListener('touchend',   onTouchEnd,   {passive:true});
+
+  // Your callback
+  function myFunction(trigger) {
+    // Do whatever you need here
+    // Example:
+    // if (trigger === 'double-tap') openSearch();
+    alert('Triggered via: ' + trigger);
+  }
+})();
+</script>
+
 </head>
 <body>
+    <div id="gesture-area" style="
+  width:100%;height:200px;background:#f5f5f5;
+  display:flex;align-items:center;justify-content:center;
+  border:1px dashed #bbb; border-radius:12px;
+  user-select:none; -webkit-user-select:none;">
+  Try tap, double-tap, or swipe here
+</div>
 <h1>My <span class="no:te">Important</span> Heading</h1>
 <p>This is some <span class="note">important</span> text.</p>
 TEXT_FIELD: <input type="text" id="test:test" name="fname">
