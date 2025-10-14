@@ -1,0 +1,31 @@
+<a id="openExternal" href="#">Open in Chrome</a>
+<script>
+(function() {
+  function isAndroid(){ return /Android/i.test(navigator.userAgent); }
+  function isIOS(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+  function openExternal(url){
+    if (isAndroid()) {
+      var u = new URL(url);
+      var intent = 'intent://' + u.host + u.pathname + u.search + u.hash +
+                   '#Intent;scheme=' + u.protocol.replace(':','') +
+                   ';package=com.android.chrome;end';
+      window.location.href = intent;
+    } else if (isIOS()) {
+      var chromeUrl = url.replace(/^https:/, 'googlechromes:').replace(/^http:/, 'googlechrome:');
+      // Try Chrome; fallback to normal open
+      var t = setTimeout(function(){ window.open(url, '_blank', 'noopener,noreferrer'); }, 600);
+      window.location = chromeUrl;
+      // If Chrome opens, navigation cancels the timeout
+    } else {
+      // Desktop or others: just open a new tab
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  var el = document.getElementById('openExternal');
+  el.addEventListener('click', function(e){
+    e.preventDefault();
+    openExternal(window.location.href); // or pass a specific URL you want
+  });
+})();
+</script>
