@@ -1,76 +1,99 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Auto-Open in Chrome</title>
+  <title>Open Travel Insurance Page</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* Optional: keep a visible fallback button if auto-open is blocked */
-    #fallbackBtn { display:inline-block; padding:10px 14px; border:1px solid #ccc; border-radius:8px; text-decoration:none; }
+    html, body {
+      height: 100%; margin: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: -apple-system, Helvetica, Arial, sans-serif;
+      background: #f4f6f8; color: #222;
+    }
+    #prompt {
+      background: white; border-radius: 12px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      max-width: 300px; text-align: center;
+    }
+    button {
+      display: block; width: 100%; margin-top: 10px;
+      padding: 10px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 16px; font-weight: 600;
+    }
+    .chrome { background: #4285f4; color: white; }
+    .safari { background: #777; color: white; }
+    .edge { background: #0078d7; color: white; }
+    .firefox { background: #e66000; color: white; }
+    .brave { background: #f06b1d; color: white; }
   </style>
 </head>
 <body>
 
-<a id="fallbackBtn" href="#">Open in Chrome</a>
+<div id="prompt">
+  <p>Open this page with:</p>
+  <button class="safari">Safari</button>
+  <button class="chrome">Chrome</button>
+  <button class="edge">Edge</button>
+  <button class="firefox">Firefox</button>
+  <button class="brave">Brave</button>
+</div>
 
 <script>
-(function () {
-  var TARGET_URL = "https://webfuse.com/+travel_insurance/";
-  var ua = navigator.userAgent || "";
-  var isAndroid = /Android/i.test(ua);
-  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+(function(){
+  const TARGET_URL = "https://webfuse.com/+travel_insurance/";
+  const ua = navigator.userAgent || "";
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
 
+  // ----- Android -----
   function openAndroidIntent(url) {
-    try {
-      var u = new URL(url);
-      var intent = "intent://" + u.host + u.pathname + u.search + u.hash +
-                   "#Intent;scheme=" + u.protocol.replace(":", "") +
-                   ";package=com.android.chrome;end";
-      window.location.href = intent;
-    } catch (e) {
-      // Fallback: normal open (likely still inside WebView)
-      window.open(url, "_blank", "noopener,noreferrer");
-    }
+    const u = new URL(url);
+    const intent = `intent://${u.host}${u.pathname}${u.search}${u.hash}#Intent;scheme=${u.protocol.replace(':','')};package=com.android.chrome;end`;
+    window.location.href = intent;
   }
 
-  function openIOSChrome(url) {
-    // Chrome on iOS uses googlechrome:// (http) and googlechromes:// (https)
-    var chromeUrl = url.replace(/^https:/, "googlechromes:").replace(/^http:/, "googlechrome:");
-    // Try Chrome; if blocked/not installed, fallback after a short delay
-    var fallbackTimer = setTimeout(function () {
-      // Try to open the regular URL in a new tab as a weak fallback
-      window.open(url, "_blank", "noopener,noreferrer");
-    }, 800);
-
-    // If navigation to Chrome actually succeeds, this page will unload and the timer won't run
-    try { window.location = chromeUrl; } catch (e) {}
+  // ----- iOS Browsers -----
+  function openSafari(url) {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+  function openChrome(url) {
+    const chromeUrl = url.replace(/^https:/, "googlechromes:").replace(/^http:/, "googlechrome:");
+    window.location = chromeUrl;
+    setTimeout(()=>openSafari(url), 1000);
+  }
+  function openEdge(url) {
+    const u = new URL(url);
+    const edgeUrl = `${u.protocol === "https:" ? "microsoft-edge-https://" : "microsoft-edge-http://"}${u.host}${u.pathname}${u.search}${u.hash}`;
+    window.location = edgeUrl;
+    setTimeout(()=>openSafari(url), 1000);
+  }
+  function openFirefox(url) {
+    const ffUrl = `firefox://open-url?url=${encodeURIComponent(url)}`;
+    window.location = ffUrl;
+    setTimeout(()=>openSafari(url), 1000);
+  }
+  function openBrave(url) {
+    const braveUrl = `brave://open-url?url=${encodeURIComponent(url)}`;
+    window.location = braveUrl;
+    setTimeout(()=>openSafari(url), 1000);
   }
 
-  function tryAutoOpenOnce() {
-    // Prevent loops if the user returns/back-navigates to this page
-    if (sessionStorage.getItem("chromeAutoOpenAttempted")) return;
-    sessionStorage.setItem("chromeAutoOpenAttempted", "1");
-
+  // ----- Logic -----
+  document.addEventListener("DOMContentLoaded", () => {
     if (isAndroid) {
-      // Small delay helps some in-app browsers complete their own init first
-      setTimeout(function(){ openAndroidIntent(TARGET_URL); }, 250);
+      // On Android, just force Chrome
+      openAndroidIntent(TARGET_URL);
     } else if (isIOS) {
-      setTimeout(function(){ openIOSChrome(TARGET_URL); }, 250);
+      // On iOS, show the chooser prompt
+      document.querySelector(".safari").onclick = ()=>openSafari(TARGET_URL);
+      document.querySelector(".chrome").onclick = ()=>openChrome(TARGET_URL);
+      document.querySelector(".edge").onclick = ()=>openEdge(TARGET_URL);
+      document.querySelector(".firefox").onclick = ()=>openFirefox(TARGET_URL);
+      document.querySelector(".brave").onclick = ()=>openBrave(TARGET_URL);
+    } else {
+      // Desktop fallback
+      window.open(TARGET_URL, "_blank", "noopener,noreferrer");
     }
-  }
-
-  // Auto-attempt on load (use pageshow to catch bfcache restores in Safari/WebViews)
-  document.addEventListener("DOMContentLoaded", tryAutoOpenOnce, { once: true });
-  window.addEventListener("pageshow", function (e) {
-    if (e.persisted) tryAutoOpenOnce();
-  });
-
-  // Visible fallback button (for when auto-open is blocked)
-  document.getElementById("fallbackBtn").addEventListener("click", function (e) {
-    e.preventDefault();
-    if (isAndroid) openAndroidIntent(TARGET_URL);
-    else if (isIOS) openIOSChrome(TARGET_URL);
-    else window.open(TARGET_URL, "_blank", "noopener,noreferrer");
   });
 })();
 </script>
