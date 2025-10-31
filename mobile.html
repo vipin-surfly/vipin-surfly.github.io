@@ -1,37 +1,79 @@
-<a id="openInChrome" href="#">Open Travel Insurance Page in Chrome</a>
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Auto-Open in Chrome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* Optional: keep a visible fallback button if auto-open is blocked */
+    #fallbackBtn { display:inline-block; padding:10px 14px; border:1px solid #ccc; border-radius:8px; text-decoration:none; }
+  </style>
+</head>
+<body>
+
+<a id="fallbackBtn" href="#">Open in Chrome</a>
 
 <script>
-  document.getElementById('openInChrome').addEventListener('click', function (e) {
-    e.preventDefault();
-    var targetUrl = 'https://webfuse.com/+travel_insurance/';
+(function () {
+  var TARGET_URL = "https://webfuse.com/+travel_insurance/";
+  var ua = navigator.userAgent || "";
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
 
-    // Detect platform
-    var ua = navigator.userAgent || '';
-    var isAndroid = /Android/i.test(ua);
-    var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  function openAndroidIntent(url) {
+    try {
+      var u = new URL(url);
+      var intent = "intent://" + u.host + u.pathname + u.search + u.hash +
+                   "#Intent;scheme=" + u.protocol.replace(":", "") +
+                   ";package=com.android.chrome;end";
+      window.location.href = intent;
+    } catch (e) {
+      // Fallback: normal open (likely still inside WebView)
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  function openIOSChrome(url) {
+    // Chrome on iOS uses googlechrome:// (http) and googlechromes:// (https)
+    var chromeUrl = url.replace(/^https:/, "googlechromes:").replace(/^http:/, "googlechrome:");
+    // Try Chrome; if blocked/not installed, fallback after a short delay
+    var fallbackTimer = setTimeout(function () {
+      // Try to open the regular URL in a new tab as a weak fallback
+      window.open(url, "_blank", "noopener,noreferrer");
+    }, 800);
+
+    // If navigation to Chrome actually succeeds, this page will unload and the timer won't run
+    try { window.location = chromeUrl; } catch (e) {}
+  }
+
+  function tryAutoOpenOnce() {
+    // Prevent loops if the user returns/back-navigates to this page
+    if (sessionStorage.getItem("chromeAutoOpenAttempted")) return;
+    sessionStorage.setItem("chromeAutoOpenAttempted", "1");
 
     if (isAndroid) {
-      // Intent URI for Android
-      var u = new URL(targetUrl);
-      var intentUri = 'intent://' + u.host + u.pathname + u.search + u.hash +
-                      '#Intent;scheme=' + u.protocol.replace(':','') +
-                      ';package=com.android.chrome;end';
-      window.location.href = intentUri;
+      // Small delay helps some in-app browsers complete their own init first
+      setTimeout(function(){ openAndroidIntent(TARGET_URL); }, 250);
+    } else if (isIOS) {
+      setTimeout(function(){ openIOSChrome(TARGET_URL); }, 250);
     }
-    else if (isIOS) {
-      // Custom Chrome scheme for iOS
-      var chromeScheme = targetUrl.replace(/^https:/, 'googlechromes:').replace(/^http:/, 'googlechrome:');
-      // Try opening in Chrome
-      window.location = chromeScheme;
+  }
 
-      // Fallback: open normally in new tab or default handler after delay
-      setTimeout(function () {
-        window.open(targetUrl, '_blank', 'noopener,noreferrer');
-      }, 500);
-    }
-    else {
-      // Other platforms: open normally
-      window.open(targetUrl, '_blank', 'noopener,noreferrer');
-    }
+  // Auto-attempt on load (use pageshow to catch bfcache restores in Safari/WebViews)
+  document.addEventListener("DOMContentLoaded", tryAutoOpenOnce, { once: true });
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted) tryAutoOpenOnce();
   });
+
+  // Visible fallback button (for when auto-open is blocked)
+  document.getElementById("fallbackBtn").addEventListener("click", function (e) {
+    e.preventDefault();
+    if (isAndroid) openAndroidIntent(TARGET_URL);
+    else if (isIOS) openIOSChrome(TARGET_URL);
+    else window.open(TARGET_URL, "_blank", "noopener,noreferrer");
+  });
+})();
 </script>
+
+</body>
+</html>
