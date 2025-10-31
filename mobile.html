@@ -1,254 +1,37 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Waiting Lobby</title>
-  <style>
-    :root {
-      --brand: #6c5ce7;           /* ← tweak this to match your brand */
-      --accent: #a29bfe;
-      --bg: #0f1220;
-      --fg: #e8e8ff;
-      --muted: #b8b8d9;
-      --card: rgba(255, 255, 255, 0.06);
-      --card-stroke: rgba(255, 255, 255, 0.12);
+<a id="openInChrome" href="#">Open Travel Insurance Page in Chrome</a>
+
+<script>
+  document.getElementById('openInChrome').addEventListener('click', function (e) {
+    e.preventDefault();
+    var targetUrl = 'https://webfuse.com/+travel_insurance/';
+
+    // Detect platform
+    var ua = navigator.userAgent || '';
+    var isAndroid = /Android/i.test(ua);
+    var isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+    if (isAndroid) {
+      // Intent URI for Android
+      var u = new URL(targetUrl);
+      var intentUri = 'intent://' + u.host + u.pathname + u.search + u.hash +
+                      '#Intent;scheme=' + u.protocol.replace(':','') +
+                      ';package=com.android.chrome;end';
+      window.location.href = intentUri;
     }
+    else if (isIOS) {
+      // Custom Chrome scheme for iOS
+      var chromeScheme = targetUrl.replace(/^https:/, 'googlechromes:').replace(/^http:/, 'googlechrome:');
+      // Try opening in Chrome
+      window.location = chromeScheme;
 
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f6f7fb;
-        --fg: #1e2030;
-        --muted: #5c5f7a;
-        --card: rgba(255, 255, 255, 0.85);
-        --card-stroke: rgba(20, 20, 40, 0.08);
-      }
+      // Fallback: open normally in new tab or default handler after delay
+      setTimeout(function () {
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      }, 500);
     }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      color: var(--fg);
-      background:
-        radial-gradient(1200px 700px at 10% 20%, rgba(108,92,231,.25), transparent 60%),
-        radial-gradient(1000px 600px at 90% 80%, rgba(162,155,254,.18), transparent 60%),
-        linear-gradient(180deg, var(--bg), var(--bg));
-      display: grid;
-      place-items: center;
-      padding: 24px;
+    else {
+      // Other platforms: open normally
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
     }
-
-    .card {
-      width: min(720px, 96vw);
-      border-radius: 20px;
-      background: var(--card);
-      border: 1px solid var(--card-stroke);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: clamp(20px, 4vw, 36px);
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,.2);
-    }
-
-    /* Floating orbs for subtle motion */
-    .orb { position: absolute; border-radius: 999px; filter: blur(18px); opacity: .35; }
-    .orb.one { width: 240px; height: 240px; background: radial-gradient(circle at 30% 30%, var(--accent), transparent 60%); top: -60px; right: -60px; animation: float 12s ease-in-out infinite; }
-    .orb.two { width: 200px; height: 200px; background: radial-gradient(circle at 70% 70%, var(--brand), transparent 60%); bottom: -50px; left: -50px; animation: float 14s ease-in-out -3s infinite; }
-    @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
-
-    header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-    .logo {
-      width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(135deg, var(--brand), var(--accent)); color: white; font-weight: 800;
-    }
-    h1 { margin: 0; font-size: clamp(22px, 2.2vw, 30px); letter-spacing: .2px; }
-    p.lead { margin: 4px 0 0 0; color: var(--muted); }
-
-    .stage {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 22px;
-      margin-top: 16px;
-    }
-
-    /* Animated hourglass */
-    .hourglass {
-      --size: 120px;
-      width: var(--size);
-      height: calc(var(--size) * 1.4);
-      margin-inline: auto;
-      position: relative;
-      filter: drop-shadow(0 6px 16px rgba(0,0,0,.18));
-    }
-    .hg-glass {
-      position: absolute; inset: 0;
-      background:
-        conic-gradient(from 225deg at 50% 22%, transparent 0 90deg, var(--brand) 0 180deg, transparent 0 360deg),
-        conic-gradient(from 45deg at 50% 78%, transparent 0 90deg, var(--brand) 0 180deg, transparent 0 360deg);
-      -webkit-mask: radial-gradient(80px 30px at 50% 22%, #000 98%, transparent 101%),
-                    radial-gradient(80px 30px at 50% 78%, #000 98%, transparent 101%);
-      mask: radial-gradient(80px 30px at 50% 22%, #000 98%, transparent 101%),
-            radial-gradient(80px 30px at 50% 78%, #000 98%, transparent 101%);
-      opacity: .16;
-    }
-    .hg-frame {
-      position: absolute; inset: 0;
-      border-left: 6px solid var(--brand);
-      border-right: 6px solid var(--brand);
-      border-radius: 12px;
-    }
-    .hg-sand-top, .hg-sand-bottom, .hg-stream, .hg-grains { position: absolute; left: 50%; transform: translateX(-50%); }
-    .hg-sand-top {
-      top: 20%; width: 0; height: 0; border-left: 48px solid transparent; border-right: 48px solid transparent; border-bottom: 46px solid var(--accent);
-      clip-path: polygon(0 0, 100% 0, 50% 100%);
-      animation: topDrain 8s linear infinite;
-    }
-    .hg-sand-bottom {
-      bottom: 20%; width: 0; height: 0; border-left: 48px solid transparent; border-right: 48px solid transparent; border-top: 0 solid var(--accent);
-      clip-path: polygon(50% 0, 100% 100%, 0 100%);
-      animation: bottomFill 8s linear infinite;
-    }
-    .hg-stream {
-      top: calc(50% - 6px); height: 22px; width: 4px; background: linear-gradient(var(--accent), var(--brand)); border-radius: 2px; animation: stream 8s linear infinite;
-    }
-    .hg-grains::before, .hg-grains::after {
-      content: ""; position: absolute; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; left: -6px; top: -8px; opacity: 0; animation: grain 2s linear infinite;
-    }
-    .hg-grains::after { left: 4px; animation-delay: 1s; }
-
-    @keyframes topDrain { 0% { border-bottom-width: 46px; } 50% { border-bottom-width: 4px; } 51% { border-bottom-width: 46px; } 100% { border-bottom-width: 46px; } }
-    @keyframes bottomFill { 0% { border-top-width: 4px; } 50% { border-top-width: 46px; } 51% { border-top-width: 4px; } 100% { border-top-width: 4px; } }
-    @keyframes stream { 0%   { height: 22px; opacity: 1 } 49%  { height: 22px; opacity: 1 } 50%  { height: 0; opacity: 0 } 100% { height: 22px; opacity: 1 } }
-    @keyframes grain { 0% { transform: translateY(-6px); opacity: .9 } 100% { transform: translateY(30px); opacity: 0 } }
-
-    .status {
-      text-align: center;
-      margin-top: 4px;
-    }
-    .status h2 { font-size: clamp(20px, 2vw, 24px); margin: 8px 0 6px 0; }
-    .status p { margin: 0; color: var(--muted); }
-
-    /* Dots loader */
-    .dots { display: inline-flex; gap: 8px; margin-top: 14px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); animation: bounce 1.4s infinite; }
-    .dot:nth-child(2) { animation-delay: .15s }
-    .dot:nth-child(3) { animation-delay: .3s }
-    @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: .5 } 40% { transform: translateY(-8px); opacity: 1 } }
-
-    .tips {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 22px;
-    }
-    .tip {
-      border: 1px dashed var(--card-stroke); border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,.02);
-    }
-    .tip strong { display: block; margin-bottom: 4px; font-size: 14px; }
-    .tip span { color: var(--muted); font-size: 13px; }
-
-    footer { margin-top: 22px; text-align: center; font-size: 12px; color: var(--muted); }
-    a.btn { display: inline-block; margin-top: 14px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--card-stroke); text-decoration: none; color: var(--fg); }
-    a.btn:hover { border-color: var(--brand); box-shadow: 0 4px 12px rgba(108,92,231,.25); }
-
-    /* Optional: swap to a GIF by adding your own src below */
-    .gif-wrapper { display: none; place-items: center; }
-    .gif-wrapper img { max-width: 320px; border-radius: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.16); }
-
-    /* If you prefer a GIF, set body[data-mode="gif"] to show it */
-    body[data-mode="gif"] .hourglass { display: none; }
-    body[data-mode="gif"] .gif-wrapper { display: grid; }
-
-  </style>
-</head>
-<body>
-  <div class="card" role="region" aria-label="Waiting Room">
-    <div class="orb one" aria-hidden="true"></div>
-    <div class="orb two" aria-hidden="true"></div>
-
-    <header>
-      <div class="logo" aria-hidden="true">S</div>
-      <div>
-        <h1>Welcome to our Company</h1>
-        <p class="lead">The host will let you in shortly — thanks for your patience.</p>
-      </div>
-    </header>
-
-    <section class="stage" aria-live="polite">
-      <!-- Animated Hourglass (default) -->
-      <div class="hourglass" aria-label="Waiting animation">
-        <div class="hg-frame"></div>
-        <div class="hg-glass"></div>
-        <div class="hg-sand-top"></div>
-        <div class="hg-stream"></div>
-        <div class="hg-sand-bottom"></div>
-        <div class="hg-grains"></div>
-      </div>
-
-      <!-- Optional GIF (uncomment & switch to GIF mode below) -->
-      <div class="gif-wrapper">
-        <!-- Replace the src with your own hosted GIF -->
-        <img src="" alt="Lobby animation" />
-      </div>
-
-      <div class="status">
-        <h2>You’re in the right place</h2>
-        <p>Please keep this tab open. We’ll bring you in as soon as the session starts.</p>
-        <div class="dots" aria-hidden="true">
-          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-        </div>
-        <!--<a class="btn" href="#" onclick="location.reload()">Refresh</a>-->
-      </div>
-
-      <div class="tips">
-        <div class="tip">
-          <strong>Tip • Audio</strong>
-          <span>Test your speakers and mic while you wait so you’re ready to go.</span>
-        </div>
-        <div class="tip">
-          <strong>Tip • Connection</strong>
-          <span>For the best experience, keep this tab focused and avoid heavy downloads.</span>
-        </div>
-        <div class="tip">
-          <strong>Tip • Support</strong>
-          <span>If you need help, keep an eye out for a chat from the host.</span>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      Need a custom message or your logo here? Edit the <code>.logo</code> and text above.
-    </footer>
-  </div>
-
-  <script>
-    // ——— Optional Runtime Tweaks ———
-    // 1) Set a custom message via URL ?title=&subtitle=
-    const params = new URLSearchParams(location.search);
-    const title = params.get('title');
-    const subtitle = params.get('subtitle');
-    if (title) document.querySelector('h1').textContent = title;
-    if (subtitle) document.querySelector('.lead').textContent = subtitle;
-
-    // 2) Swap to GIF mode via ?mode=gif and provide an <img src> above
-    const mode = params.get('mode');
-    if (mode === 'gif') {
-      document.body.setAttribute('data-mode', 'gif');
-      const gif = params.get('gif');
-      if (gif) document.querySelector('.gif-wrapper img').src = decodeURIComponent(gif);
-    }
-
-    // 3) Auto-announce elapsed waiting time for accessibility
-    const status = document.querySelector('.status p');
-    const started = Date.now();
-    setInterval(() => {
-      const mins = Math.floor((Date.now() - started) / 60000);
-      if (mins > 0) status.textContent = `Thanks for waiting — ${mins} minute${mins>1?'s':''} elapsed.`;
-    }, 30000);
-  </script>
-</body>
-</html>
+  });
+</script>
