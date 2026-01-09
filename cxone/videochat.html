@@ -1,6 +1,150 @@
 <html>
     <head>
-    ...
+    <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surfly Design Test</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body Styling */
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f7f7f7;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background-color: #e54747;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+    }
+
+    header .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    header nav ul {
+      list-style: none;
+      display: flex;
+    }
+
+    header nav ul li {
+      margin-left: 1.5rem;
+    }
+
+    header nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      transition: color 0.3s ease;
+    }
+
+    header nav ul li a:hover {
+      color: #e54747;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .hero button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      color: white;
+      background-color: #e54747;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .hero button:hover {
+      background-color: #d13d3d;
+    }
+
+    /* Dynamic Content Section */
+    #dynamic-content {
+      padding: 2rem 1rem;
+      text-align: center;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      margin: 2rem auto;
+      max-width: 600px;
+      border-radius: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #e54747;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">Surfly Test</div>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Welcome to the Surfly Test Page</h1>
+    <p>Experience the simplicity and flexibility of a Surfly-inspired
+      design.</p>
+    <button id="load-content">Load More Content</button>
+  </section>
+
+  <section id="dynamic-content" class="hidden">
+    <h2>Dynamic Content</h2>
+    <p>This content was dynamically loaded using JavaScript!</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2024 Surfly Test. All rights reserved.</p>
+  </footer>
     </head>
     <body>
         ...
