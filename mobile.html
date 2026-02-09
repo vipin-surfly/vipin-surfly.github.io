@@ -1,102 +1,34 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <title>Open Travel Insurance Page</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    html, body {
-      height: 100%; margin: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: -apple-system, Helvetica, Arial, sans-serif;
-      background: #f4f6f8; color: #222;
-    }
-    #prompt {
-      background: white; border-radius: 12px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-      max-width: 300px; text-align: center;
-    }
-    button {
-      display: block; width: 100%; margin-top: 10px;
-      padding: 10px; border-radius: 8px; border: none; cursor: pointer;
-      font-size: 16px; font-weight: 600;
-    }
-    .chrome { background: #4285f4; color: white; }
-    .safari { background: #777; color: white; }
-    .edge { background: #0078d7; color: white; }
-    .firefox { background: #e66000; color: white; }
-    .brave { background: #f06b1d; color: white; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open in Browser</title>
 </head>
 <body>
 
-<div id="prompt">
-  <p>Open this page with:</p>
-  <button class="safari">Safari</button>
-  <button class="chrome">Chrome</button>
-  <button class="edge">Edge</button>
-  <button class="firefox">Firefox</button>
-  <button class="brave">Brave</button>
-</div>
+  <h2>Open in your browser</h2>
 
-<script>
-(function(){
-  const TARGET_URL = "https://webfuse.com/+travel_insurance/";
-  const ua = navigator.userAgent || "";
-  const isAndroid = /Android/i.test(ua);
-  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  <a id="openBrowser"
+     style="display:inline-block;padding:12px 16px;background:#000;color:#fff;border-radius:8px;text-decoration:none;">
+    Open link
+  </a>
 
-  // ----- Android -----
-  function openAndroidIntent(url) {
-    const u = new URL(url);
-    const intent = `intent://${u.host}${u.pathname}${u.search}${u.hash}#Intent;scheme=${u.protocol.replace(':','')};package=com.android.chrome;end`;
-    window.location.href = intent;
-  }
+  <script>
+    // The real HTTPS URL you want to open
+    const httpsUrl = "https://webfuse.com/+travel_insurance/";
 
-  // ----- iOS Browsers -----
-  function openSafari(url) {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-  function openChrome(url) {
-    const chromeUrl = url.replace(/^https:/, "googlechromes:").replace(/^http:/, "googlechrome:");
-    window.location = chromeUrl;
-    setTimeout(()=>openSafari(url), 1000);
-  }
-  function openEdge(url) {
-    const u = new URL(url);
-    const edgeUrl = `${u.protocol === "https:" ? "microsoft-edge-https://" : "microsoft-edge-http://"}${u.host}${u.pathname}${u.search}${u.hash}`;
-    window.location = edgeUrl;
-    setTimeout(()=>openSafari(url), 1000);
-  }
-  function openFirefox(url) {
-    const ffUrl = `firefox://open-url?url=${encodeURIComponent(url)}`;
-    window.location = ffUrl;
-    setTimeout(()=>openSafari(url), 1000);
-  }
-  function openBrave(url) {
-    const braveUrl = `brave://open-url?url=${encodeURIComponent(url)}`;
-    window.location = braveUrl;
-    setTimeout(()=>openSafari(url), 1000);
-  }
+    // Remove https:// or http://
+    const noScheme = "example.com/page?foo=bar";
 
-  // ----- Logic -----
-  document.addEventListener("DOMContentLoaded", () => {
-    if (isAndroid) {
-      // On Android, just force Chrome
-      openAndroidIntent(TARGET_URL);
-    } else if (isIOS) {
-      // On iOS, show the chooser prompt
-      document.querySelector(".safari").onclick = ()=>openSafari(TARGET_URL);
-      document.querySelector(".chrome").onclick = ()=>openChrome(TARGET_URL);
-      document.querySelector(".edge").onclick = ()=>openEdge(TARGET_URL);
-      document.querySelector(".firefox").onclick = ()=>openFirefox(TARGET_URL);
-      document.querySelector(".brave").onclick = ()=>openBrave(TARGET_URL);
-    } else {
-      // Desktop fallback
-      window.open(TARGET_URL, "_blank", "noopener,noreferrer");
-    }
-  });
-})();
-</script>
+    // Android intent URL
+    const intentUrl =
+      "intent://" + noScheme +
+      "#Intent;scheme=https;" +
+      "S.browser_fallback_url=" + encodeURIComponent(httpsUrl) + ";" +
+      "end";
+
+    document.getElementById("openBrowser").href = intentUrl;
+  </script>
 
 </body>
 </html>
