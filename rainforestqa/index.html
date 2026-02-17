@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex">
+<title>Session start</title>
+
+<body>
+
+<h2>Start a session with 3rd party cookies disabled</h2>
+
+<script>
+    (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+    l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+    l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+    (window,document,'script','Surfly');
+
+    var settings = {
+    widget_key: 'c82e6c98ade542b789429d18b46bc6e1',
+    private_session: true,
+    confirm_session_start: false,
+    block_until_agent_joins: false,
+    auto_restore: false,
+    position: "bottomright" // position of surfly button
+    };
+
+    Surfly.init(settings, function(initResult) {
+        if (initResult.success) {
+            if (!Surfly.isInsideSession) {
+                Surfly.button();
+            }
+        }
+        else{
+            console.log("Surfly was unable to initialize properly.")
+        }
+    });
+</script>
+
+</body>
+</html>
