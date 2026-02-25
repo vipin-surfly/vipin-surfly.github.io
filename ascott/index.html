@@ -96,7 +96,7 @@
         });
 
         // 3. Start the session and expose controls
-        function startSession() {
+function startSession() {
             var followerLink = document.getElementById('linkInput').value;
 
             if (!followerLink) {
@@ -104,18 +104,27 @@
                 return;
             }
 
+            // 1. Unhide the control buttons immediately
+            var controlsDiv = document.getElementById('sessionControls');
+            if (controlsDiv) {
+                controlsDiv.style.display = 'block';
+            } else {
+                console.error("Could not find the sessionControls div in the HTML!");
+            }
+
             var sessionOptions = {
                 frame_id: "surfly-frame"
             };
 
-            // Store the session instance in our global variable
-            currentSession = Surfly.session(sessionOptions, followerLink);
-            
-            // Start the follower
-            currentSession.startFollower(null, {});
-
-            // Unhide the control buttons now that the session is starting
-            document.getElementById('sessionControls').style.display = 'block';
+            // 2. Try to start the session, and catch any errors
+            try {
+                currentSession = Surfly.session(sessionOptions, followerLink);
+                currentSession.startFollower(null, {});
+                console.log("Session started successfully.");
+            } catch (error) {
+                console.error("Error starting Surfly session:", error);
+                alert("There was an error starting the session. Check your browser's developer console for details.");
+            }
         }
 
         // --- NEW API CONTROL FUNCTIONS ---
