@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Surfly Session</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        #linkInput {
+            width: 350px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        /* Style the iframe so it has a visible boundary and size */
+        #surfly-frame {
+            width: 100%;
+            height: 700px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Join Co-Browsing Session</h2>
+    
+    <div class="controls">
+        <input type="text" id="linkInput" placeholder="Paste Surfly follower link here...">
+        <button onclick="startSession()">Start in Iframe</button>
+    </div>
+
+    <iframe id="surfly-frame" title="Surfly Session"></iframe>
+
+    <script>
+        // 1. Surfly Installation Snippet (from your code)
+        (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+        l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+        l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+        (window,document,'script','Surfly');
+
+        // 2. Initialize Surfly 
+        // Note: Depending on your account setup, you may need to add your widget_key here
+        Surfly.init({
+            settings: {
+                hidden: true // Hides the default floating Surfly button
+            }
+        }, function(initResult) {
+            if (!initResult.success) {
+                console.error("Surfly failed to initialize");
+            }
+        });
+
+        // 3. Function to grab the link and start the session
+        function startSession() {
+            var followerLink = document.getElementById('linkInput').value;
+
+            if (!followerLink) {
+                alert("Please enter a follower link first.");
+                return;
+            }
+
+            // Target the iframe by its ID
+            var sessionOptions = {
+                frame_id: "surfly-frame"
+            };
+
+            // Start the follower session inside the iframe
+            Surfly.session(sessionOptions, followerLink).startFollower(null, {});
+        }
+    </script>
+
+</body>
+</html>
