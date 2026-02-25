@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Surfly Session</title>
+    <title>Join Surfly Session (Main Page)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,26 +31,32 @@
         button:hover {
             background-color: #0056b3;
         }
-        /* Styling for the new control buttons */
         .action-btn {
             background-color: #28a745; 
         }
         .action-btn:hover {
             background-color: #218838;
         }
-        #surfly-frame {
-            width: 100%;
-            height: 700px;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-        }
-        /* Hide session controls until session starts */
+        
+        /* Float the controls on top of the Surfly full-page session */
         #sessionControls {
             display: none; 
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2147483647; /* Maximum z-index to stay above Surfly */
+            padding: 15px;
+            background-color: rgba(248, 249, 250, 0.95);
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+            max-width: 200px;
+        }
+        #sessionControls h4 {
+            margin-top: 0;
+        }
+        #sessionControls button {
+            width: 100%;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -60,7 +66,7 @@
     
     <div class="controls">
         <input type="text" id="linkInput" placeholder="Paste Surfly follower link here...">
-        <button onclick="startSession()">Start in Iframe</button>
+        <button onclick="startSession()">Start Session</button>
     </div>
 
     <div id="sessionControls">
@@ -72,10 +78,7 @@
         <button class="action-btn" onclick="transferTab()">Transfer Tab Control</button>
     </div>
 
-    <iframe id="surfly-frame" title="Surfly Session"></iframe>
-
     <script>
-        // Global variable to hold our active session object
         var currentSession = null;
 
         // 1. Surfly Installation Snippet
@@ -95,8 +98,8 @@
             }
         });
 
-        // 3. Start the session and expose controls
-function startSession() {
+        // 3. Start the session on the main page
+        function startSession() {
             var followerLink = document.getElementById('linkInput').value;
 
             if (!followerLink) {
@@ -104,67 +107,49 @@ function startSession() {
                 return;
             }
 
-            // 1. Unhide the control buttons immediately
+            // Unhide the floating control buttons
             var controlsDiv = document.getElementById('sessionControls');
             if (controlsDiv) {
                 controlsDiv.style.display = 'block';
-            } else {
-                console.error("Could not find the sessionControls div in the HTML!");
             }
 
-            var sessionOptions = {
-                frame_id: "surfly-frame"
-            };
+            // Notice we removed the frame_id option here
+            var sessionOptions = {}; 
 
-            // 2. Try to start the session, and catch any errors
             try {
+                // Start the session on the whole page
                 currentSession = Surfly.session(sessionOptions, followerLink);
                 currentSession.startFollower(null, {});
-                console.log("Session started successfully.");
+                console.log("Session started successfully on the main page.");
             } catch (error) {
                 console.error("Error starting Surfly session:", error);
-                alert("There was an error starting the session. Check your browser's developer console for details.");
+                alert("There was an error starting the session.");
             }
         }
 
-        // --- NEW API CONTROL FUNCTIONS ---
+        // --- API CONTROL FUNCTIONS ---
 
         function requestHost() {
-            if (currentSession) {
-                currentSession.requestToHost();
-                console.log("Requested to host.");
-            }
+            if (currentSession) currentSession.requestToHost();
         }
 
         function requestTab() {
-            if (currentSession) {
-                currentSession.requestTabControl();
-                console.log("Requested tab control.");
-            }
+            if (currentSession) currentSession.requestTabControl();
         }
 
         function revokeTab() {
-            if (currentSession) {
-                currentSession.revokeTabControl();
-                console.log("Revoked tab control.");
-            }
+            if (currentSession) currentSession.revokeTabControl();
         }
 
         function returnTab() {
-            if (currentSession) {
-                currentSession.returnTabControl();
-                console.log("Returned tab control.");
-            }
+            if (currentSession) currentSession.returnTabControl();
         }
 
         function transferTab() {
             if (currentSession) {
-                // Note: transferTabControl requires a specific participant's ID.
-                // In a production app, you would select a participant from a list of currentSession.participants
                 var participantId = prompt("Enter the Participant ID to transfer control to:");
                 if (participantId) {
                     currentSession.transferTabControl(parseInt(participantId, 10));
-                    console.log("Transferred tab control to " + participantId);
                 }
             }
         }
