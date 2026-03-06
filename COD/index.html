@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webfuse Multiplayer Strike</title>
+    <style>
+        body { margin: 0; background: #121212; color: #00ff00; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        #arena { width: 100vw; height: 100vh; position: relative; cursor: crosshair; }
+        
+        /* Player Design */
+        .player {
+            position: absolute; width: 40px; height: 40px;
+            background: #3498db; border: 2px solid #fff; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: bold; transition: transform 0.1s linear;
+            z-index: 10; box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+        .player.enemy { background: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); }
+
+        /* Health Bar */
+        .health-container { position: absolute; top: -15px; width: 40px; height: 5px; background: #333; }
+        .health-bar { height: 100%; background: #2ecc71; width: 100%; transition: width 0.3s; }
+
+        /* Bullet Design */
+        .bullet {
+            position: absolute; width: 8px; height: 8px;
+            background: #f1c40f; border-radius: 50%;
+            box-shadow: 0 0 8px #f1c40f; z-index: 5;
+        }
+
+        /* HUD */
+        #hud { position: fixed; top: 20px; left: 20px; z-index: 100; pointer-events: none; background: rgba(0,0,0,0.7); padding: 15px; border: 1px solid #00ff00; }
+        .stat { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="hud">
+    <div class="stat">SESSION: <span id="session-id">CONNECTING...</span></div>
+    <div class="stat">SCORE: <span id="score">0</span></div>
+    <div class="stat">CONTROLS: WASD to Move | Click to Shoot</div>
+</div>
+
+<div id="arena"></div>
+
+<script>
+// --- WEBFUSE INITIALIZATION ---
+(function (w, e, b, f, u, s) {
+    w[f] = w[f] || { initSpace: function () { return new Promise(resolve => { w[f].q = arguments; w[f].resolve = resolve; }); } };
+    u = e.createElement(b); s = e.getElementsByTagName(b)[0]; u.async = 1; u.src = 'https://webfuse.com/surfly.js'; s.parentNode.insertBefore(u, s);
+})(window, document, 'script', 'webfuse');
+
+// --- GAME STATE ---
+const myId = 'player-' + Math.random().toString(36).substr(2, 5);
+let score = 0;
+let myPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+webfuse.initSpace('wk_FtfKLLSEwqA5PwVv5lWBO1_NdeIQ98x9', '2886', {})
+.then(space => {
+    webfuse.on('session_started', function(session) {
+        document.getElementById('session-id').innerText = session.pin || "ACTIVE";
+        
+        // 1. Create my character
+        spawnPlayer(myId, myPos.x, myPos.y, false);
+
+        // 2. Handle Movement
+        window.addEventListener('keydown', (e) => {
+            const step = 20;
+            if(e.key.toLowerCase() === 'w') myPos.y -= step;
+            if(e.key.toLowerCase() === 's') myPos.y += step;
+            if(e.key.toLowerCase() === 'a') myPos.x -= step;
+            if(e.key.toLowerCase() === 'd') myPos.x += step;
+            
+            const me = document.getElementById(myId);
+            if(me) {
+                me.style.left = myPos.x + 'px';
+                me.style.top = myPos.y + 'px';
+            }
+        });
+
+        // 3. Handle Shooting
+        window.addEventListener('mousedown', (e) => {
+            fireBullet(myId, myPos.x + 15, myPos.y + 15, e.clientX, e.clientY);
+        });
+    });
+    space.button({ position: 'bottomright' });
+});
+
+// --- GAME FUNCTIONS ---
+
+function spawnPlayer(id, x, y, isEnemy) {
+    if (document.getElementById(id)) return;
+    const p = document.createElement('div');
+    p.id = id;
+    p.className = 'player' + (isEnemy ? ' enemy' : '');
+    p.innerHTML = `<div class="health-container"><div class="health-bar" id="hp-${id}"></div></div>👤`;
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    document.getElementById('arena').appendChild(p);
+}
+
+function fireBullet(shooterId, startX, startY, targetX, targetY) {
+    const b = document.createElement('div');
+    b.className = 'bullet';
+    b.style.left = startX + 'px';
+    b.style.top = startY + 'px';
+    document.getElementById('arena').appendChild(b);
+
+    const angle = Math.atan2(targetY - startY, targetX - startX);
+    const speed = 12;
+    let distanceTraveled = 0;
+
+    const bulletInterval = setInterval(() => {
+        const curX = parseFloat(b.style.left);
+        const curY = parseFloat(b.style.top);
+        
+        b.style.left = (curX + Math.cos(angle) * speed) + 'px';
+        b.style.top = (curY + Math.sin(angle) * speed) + 'px';
+        distanceTraveled += speed;
+
+        // Collision Detection
+        const targets = document.querySelectorAll('.player');
+        targets.forEach(t => {
+            if (t.id !== shooterId) {
+                const rectA = b.getBoundingClientRect();
+                const rectB = t.getBoundingClientRect();
+                
+                if (!(rectA.right < rectB.left || rectA.left > rectB.right || rectA.bottom < rectB.top || rectA.top > rectB.bottom)) {
+                    // HIT DETECTED
+                    t.style.filter = 'brightness(2)';
+                    setTimeout(() => t.style.filter = 'none', 100);
+                    if (shooterId === myId) {
+                        score += 10;
+                        document.getElementById('score').innerText = score;
+                    }
+                    clearInterval(bulletInterval);
+                    b.remove();
+                }
+            }
+        });
+
+        if (distanceTraveled > 1500) {
+            clearInterval(bulletInterval);
+            b.remove();
+        }
+    }, 20);
+}
+</script>
+</body>
+</html>
