@@ -3,102 +3,611 @@
 <head>
   <meta charset="utf-8" />
   <title>Standard Login Form with Surfly</title>
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>
 (function () {
-  if (window.__full_console_hooked__) return;
-  window.__full_console_hooked__ = true;
+  if (window.__SURFLY_MOBILE_DEBUG_INSTALLED__) return;
+  window.__SURFLY_MOBILE_DEBUG_INSTALLED__ = true;
 
-  const frameId = window === window.top
-    ? 'top'
-    : `frame:${location.href}`;
+  const MAX_LOGS = 1000;
+  const logs = [];
+  const listeners = [];
+  const origConsole = {
+    log: console.log.bind(console),
+    info: console.info.bind(console),
+    warn: console.warn.bind(console),
+    error: console.error.bind(console),
+    debug: console.debug ? console.debug.bind(console) : console.log.bind(console)
+  };
 
-  function sendToTop(payload) {
+  function safeSerialize(value, depth) {
+    depth = depth || 0;
+    if (depth > 3) return "[MaxDepth]";
+    if (value === null) return null;
+    if (value === undefined) return "[undefined]";
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return value;
+    if (typeof value === "bigint") return String(value) + "n";
+    if (typeof value === "function") return "[Function " + (value.name || "anonymous") + "]";
+    if (value instanceof Error) {
+      return {
+        name: value.name,
+        message: value.message,
+        stack: value.stack || ""
+      };
+    }
+    if (typeof Event !== "undefined" && value instanceof Event) {
+      return {
+        type: value.type,
+        target: value.target && value.target.tagName,
+        currentTarget: value.currentTarget && value.currentTarget.tagName
+      };
+    }
+    if (typeof MediaStream !== "undefined" && value instanceof MediaStream) {
+      return {
+        id: value.id,
+        active: value.active,
+        audioTracks: value.getAudioTracks().map(trackSummary),
+        videoTracks: value.getVideoTracks().map(trackSummary)
+      };
+    }
+    if (typeof MediaStreamTrack !== "undefined" && value instanceof MediaStreamTrack) {
+      return trackSummary(value);
+    }
+    if (Array.isArray(value)) {
+      return value.map(function (v) { return safeSerialize(v, depth + 1); });
+    }
+    if (typeof value === "object") {
+      const out = {};
+      Object.keys(value).slice(0, 50).forEach(function (key) {
+        try {
+          out[key] = safeSerialize(value[key], depth + 1);
+        } catch (e) {
+          out[key] = "[Unserializable]";
+        }
+      });
+      return out;
+    }
     try {
-      if (window.top && window !== window.top) {
-        window.top.postMessage({
-          __erudaForwardedLog: true,
-          source: frameId,
-          ...payload
-        }, '*');
+      return String(value);
+    } catch (e) {
+      return "[Unknown]";
+    }
+  }
+
+  function stringifyArgs(args) {
+    return Array.prototype.slice.call(args).map(function (arg) {
+      try {
+        const s = safeSerialize(arg);
+        return typeof s === "string" ? s : JSON.stringify(s);
+      } catch (e) {
+        return "[UnserializableArg]";
       }
-    } catch (e) {}
+    }).join(" ");
   }
 
-  function emit(method, args) {
-    sendToTop({ method, args });
+  function addLog(level, source, args, extra) {
+    const entry = {
+      ts: new Date().toISOString(),
+      level: level,
+      source: source,
+      message: stringifyArgs(args || []),
+      raw: Array.prototype.slice.call(args || []).map(function (a) { return safeSerialize(a); }),
+      extra: safeSerialize(extra || null),
+      href: location.href,
+      ua: navigator.userAgent
+    };
+    logs.push(entry);
+    if (logs.length > MAX_LOGS) logs.shift();
+    window.__mobileDebugLogs = logs;
+    listeners.forEach(function (fn) {
+      try { fn(entry, logs); } catch (e) {}
+    });
   }
 
-  const methods = ['log', 'warn', 'error', 'info', 'debug'];
-  const originals = {};
+  function trackSummary(track) {
+    let settings = {};
+    let constraints = {};
+    let capabilities = {};
+    try { settings = track.getSettings ? track.getSettings() : {}; } catch (e) {}
+    try { constraints = track.getConstraints ? track.getConstraints() : {}; } catch (e) {}
+    try { capabilities = track.getCapabilities ? track.getCapabilities() : {}; } catch (e) {}
+    return {
+      kind: track.kind,
+      id: track.id,
+      label: track.label,
+      enabled: track.enabled,
+      muted: track.muted,
+      readyState: track.readyState,
+      settings: safeSerialize(settings),
+      constraints: safeSerialize(constraints),
+      capabilities: safeSerialize(capabilities)
+    };
+  }
 
-  methods.forEach(method => {
-    originals[method] = console[method];
-    console[method] = function (...args) {
-      emit(method, args);
-      if (originals[method]) originals[method].apply(console, args);
+  window.MobileDebug = {
+    getLogs: function () {
+      return logs.slice();
+    },
+    clear: function () {
+      logs.length = 0;
+    },
+    print: function () {
+      origConsole.log("MobileDebug logs:", logs);
+    },
+    download: function (filename) {
+      const blob = new Blob([JSON.stringify(logs, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename || ("mobile-debug-" + Date.now() + ".json");
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }, 1000);
+    },
+    sendToServer: function (url, extraPayload) {
+      return fetch(url, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          logs: logs,
+          extra: extraPayload || null,
+          page: location.href,
+          userAgent: navigator.userAgent,
+          time: new Date().toISOString()
+        })
+      });
+    },
+    onLog: function (fn) {
+      listeners.push(fn);
+    },
+    inspectMediaDevices: async function () {
+      const result = { supported: !!(navigator.mediaDevices), devices: [], permissions: {} };
+      try {
+        if (navigator.permissions && navigator.permissions.query) {
+          try { result.permissions.camera = await navigator.permissions.query({ name: "camera" }); } catch (e) {}
+          try { result.permissions.microphone = await navigator.permissions.query({ name: "microphone" }); } catch (e) {}
+        }
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          result.devices = devices.map(function (d) {
+            return {
+              kind: d.kind,
+              label: d.label,
+              deviceId: d.deviceId,
+              groupId: d.groupId
+            };
+          });
+        }
+      } catch (e) {
+        result.error = safeSerialize(e);
+      }
+      addLog("info", "media.inspect", [result]);
+      return result;
+    }
+  };
+
+  ["log", "info", "warn", "error", "debug"].forEach(function (level) {
+    console[level] = function () {
+      addLog(level, "console", arguments);
+      return origConsole[level].apply(console, arguments);
     };
   });
 
-  window.addEventListener('error', function (event) {
-    emit('error', [
+  window.addEventListener("error", function (event) {
+    addLog("error", "window.error", [
       event.message,
       event.filename,
-      event.lineno,
-      event.colno,
-      event.error
+      "line=" + event.lineno,
+      "col=" + event.colno,
+      event.error || null
     ]);
+  }, true);
+
+  window.addEventListener("unhandledrejection", function (event) {
+    addLog("error", "window.unhandledrejection", [event.reason]);
   });
 
-  window.addEventListener('unhandledrejection', function (event) {
-    emit('error', ['Unhandled Promise Rejection:', event.reason]);
-  });
-
-  // Only top window owns Eruda UI
-  if (window === window.top) {
-    if (!window.__eruda_loading__) {
-      window.__eruda_loading__ = true;
-
-      window.addEventListener('message', function (event) {
-        if (!event.data || !event.data.__erudaForwardedLog) return;
-        const data = event.data;
-        const cTool = window.eruda && window.eruda.get && window.eruda.get('console');
-        if (!cTool) return;
-
-        const msg = [`[${data.source}]`, ...(data.args || [])];
-        try {
-          if (cTool[data.method]) cTool[data.method](...msg);
-          else cTool.log(...msg);
-        } catch (e) {}
+  if (navigator.mediaDevices) {
+    if (navigator.mediaDevices.addEventListener) {
+      navigator.mediaDevices.addEventListener("devicechange", function () {
+        addLog("info", "media.devicechange", ["devicechange fired"]);
       });
-
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/eruda';
-      script.onload = function () {
-        eruda.init({ tool: ['console'] });
-        eruda.show();
-      };
-      document.documentElement.appendChild(script);
     }
 
-    // Try same-origin iframes
-    function hookFrames() {
-      document.querySelectorAll('iframe').forEach((iframe, index) => {
+    if (navigator.mediaDevices.getUserMedia) {
+      const origGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+      navigator.mediaDevices.getUserMedia = async function (constraints) {
+        addLog("info", "media.getUserMedia.call", [constraints]);
         try {
-          const w = iframe.contentWindow;
-          if (!w || w.__full_console_hooked__) return;
-
-          w.eval(`(${arguments.callee.caller.toString()})()`); // not ideal
-        } catch (e) {
-          // cross-origin frame, cannot access
+          const stream = await origGetUserMedia(constraints);
+          addLog("info", "media.getUserMedia.success", [stream]);
+          attachTrackListeners(stream, "gum");
+          return stream;
+        } catch (err) {
+          addLog("error", "media.getUserMedia.error", [err], { constraints: constraints });
+          throw err;
         }
+      };
+    }
+  }
+
+  function attachTrackListeners(stream, source) {
+    try {
+      stream.getTracks().forEach(function (track) {
+        ["ended", "mute", "unmute"].forEach(function (ev) {
+          track.addEventListener(ev, function () {
+            addLog("warn", "track." + ev, [track], { source: source });
+          });
+        });
       });
+    } catch (e) {
+      addLog("warn", "track.listener.attach.error", [e]);
+    }
+  }
+
+  if (window.fetch) {
+    const origFetch = window.fetch.bind(window);
+    window.fetch = async function (input, init) {
+      const method = (init && init.method) || "GET";
+      const url = typeof input === "string" ? input : (input && input.url);
+      addLog("info", "fetch.call", [method, url]);
+      try {
+        const response = await origFetch(input, init);
+        addLog("info", "fetch.response", [method, url, "status=" + response.status, "ok=" + response.ok]);
+        return response;
+      } catch (err) {
+        addLog("error", "fetch.error", [method, url, err]);
+        throw err;
+      }
+    };
+  }
+
+  if (window.XMLHttpRequest) {
+    const origOpen = XMLHttpRequest.prototype.open;
+    const origSend = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function (method, url) {
+      this.__debugMethod = method;
+      this.__debugUrl = url;
+      return origOpen.apply(this, arguments);
+    };
+
+    XMLHttpRequest.prototype.send = function (body) {
+      const xhr = this;
+      addLog("info", "xhr.call", [xhr.__debugMethod, xhr.__debugUrl]);
+
+      xhr.addEventListener("load", function () {
+        addLog("info", "xhr.load", [xhr.__debugMethod, xhr.__debugUrl, "status=" + xhr.status]);
+      });
+      xhr.addEventListener("error", function () {
+        addLog("error", "xhr.error", [xhr.__debugMethod, xhr.__debugUrl, "status=" + xhr.status]);
+      });
+      xhr.addEventListener("abort", function () {
+        addLog("warn", "xhr.abort", [xhr.__debugMethod, xhr.__debugUrl]);
+      });
+      xhr.addEventListener("timeout", function () {
+        addLog("warn", "xhr.timeout", [xhr.__debugMethod, xhr.__debugUrl]);
+      });
+
+      return origSend.apply(this, arguments);
+    };
+  }
+
+  function patchRTCPeerConnection() {
+    const PC = window.RTCPeerConnection || window.webkitRTCPeerConnection;
+    if (!PC || PC.__MOBILE_DEBUG_PATCHED__) return;
+    PC.__MOBILE_DEBUG_PATCHED__ = true;
+
+    const OrigPC = PC;
+    function WrappedPC(config, constraints) {
+      const pc = new OrigPC(config, constraints);
+      addLog("info", "webrtc.pc.created", [config || {}, constraints || {}]);
+
+      ["iceconnectionstatechange", "connectionstatechange", "signalingstatechange", "icegatheringstatechange"].forEach(function (ev) {
+        pc.addEventListener(ev, function () {
+          addLog("info", "webrtc." + ev, [{
+            iceConnectionState: pc.iceConnectionState,
+            connectionState: pc.connectionState,
+            signalingState: pc.signalingState,
+            iceGatheringState: pc.iceGatheringState
+          }]);
+        });
+      });
+
+      pc.addEventListener("track", function (event) {
+        addLog("info", "webrtc.track", [event.streams && event.streams[0] ? event.streams[0] : null, event.track || null]);
+      });
+
+      pc.addEventListener("icecandidateerror", function (event) {
+        addLog("error", "webrtc.icecandidateerror", [safeSerialize(event)]);
+      });
+
+      const origAddTrack = pc.addTrack;
+      if (origAddTrack) {
+        pc.addTrack = function () {
+          addLog("info", "webrtc.addTrack", arguments);
+          return origAddTrack.apply(pc, arguments);
+        };
+      }
+
+      const origCreateOffer = pc.createOffer;
+      if (origCreateOffer) {
+        pc.createOffer = async function () {
+          addLog("info", "webrtc.createOffer.call", []);
+          try {
+            const result = await origCreateOffer.apply(pc, arguments);
+            addLog("info", "webrtc.createOffer.success", [result && result.type]);
+            return result;
+          } catch (e) {
+            addLog("error", "webrtc.createOffer.error", [e]);
+            throw e;
+          }
+        };
+      }
+
+      const origCreateAnswer = pc.createAnswer;
+      if (origCreateAnswer) {
+        pc.createAnswer = async function () {
+          addLog("info", "webrtc.createAnswer.call", []);
+          try {
+            const result = await origCreateAnswer.apply(pc, arguments);
+            addLog("info", "webrtc.createAnswer.success", [result && result.type]);
+            return result;
+          } catch (e) {
+            addLog("error", "webrtc.createAnswer.error", [e]);
+            throw e;
+          }
+        };
+      }
+
+      return pc;
     }
 
-    setInterval(hookFrames, 2000);
+    WrappedPC.prototype = OrigPC.prototype;
+    window.RTCPeerConnection = WrappedPC;
+    if (window.webkitRTCPeerConnection) {
+      window.webkitRTCPeerConnection = WrappedPC;
+    }
   }
+  patchRTCPeerConnection();
+
+  function tryPatchOpenTok() {
+    if (!window.OT || window.OT.__MOBILE_DEBUG_PATCHED__) return;
+    window.OT.__MOBILE_DEBUG_PATCHED__ = true;
+
+    addLog("info", "opentok.patch", ["Patching OpenTok"]);
+
+    if (window.OT.initPublisher) {
+      const origInitPublisher = window.OT.initPublisher.bind(window.OT);
+      window.OT.initPublisher = function () {
+        addLog("info", "opentok.initPublisher.call", arguments);
+        const callbackIndex = Array.prototype.findIndex.call(arguments, function (arg) {
+          return typeof arg === "function";
+        });
+        const args = Array.prototype.slice.call(arguments);
+
+        if (callbackIndex >= 0) {
+          const userCb = args[callbackIndex];
+          args[callbackIndex] = function (err) {
+            if (err) addLog("error", "opentok.initPublisher.callback.error", [err]);
+            else addLog("info", "opentok.initPublisher.callback.success", []);
+            return userCb.apply(this, arguments);
+          };
+        }
+
+        const publisher = origInitPublisher.apply(window.OT, args);
+
+        if (publisher && publisher.on) {
+          publisher.on("streamCreated", function (e) { addLog("info", "opentok.publisher.streamCreated", [e]); });
+          publisher.on("streamDestroyed", function (e) { addLog("warn", "opentok.publisher.streamDestroyed", [e]); });
+          publisher.on("accessAllowed", function (e) { addLog("info", "opentok.publisher.accessAllowed", [e]); });
+          publisher.on("accessDenied", function (e) { addLog("error", "opentok.publisher.accessDenied", [e]); });
+          publisher.on("accessDialogOpened", function (e) { addLog("info", "opentok.publisher.accessDialogOpened", [e]); });
+          publisher.on("accessDialogClosed", function (e) { addLog("info", "opentok.publisher.accessDialogClosed", [e]); });
+          publisher.on("destroyed", function (e) { addLog("warn", "opentok.publisher.destroyed", [e]); });
+          publisher.on("mediaStopped", function (e) { addLog("warn", "opentok.publisher.mediaStopped", [e]); });
+          publisher.on("videoElementCreated", function (e) { addLog("info", "opentok.publisher.videoElementCreated", [e]); });
+          publisher.on("audioLevelUpdated", function (e) {});
+          publisher.on("exception", function (e) { addLog("error", "opentok.publisher.exception", [e]); });
+        }
+
+        return publisher;
+      };
+    }
+
+    if (window.OT.initSession) {
+      const origInitSession = window.OT.initSession.bind(window.OT);
+      window.OT.initSession = function () {
+        addLog("info", "opentok.initSession.call", arguments);
+        const session = origInitSession.apply(window.OT, arguments);
+
+        if (session && session.on) {
+          [
+            "sessionConnected",
+            "sessionDisconnected",
+            "connectionCreated",
+            "connectionDestroyed",
+            "streamCreated",
+            "streamDestroyed",
+            "streamPropertyChanged",
+            "archiveStarted",
+            "archiveStopped",
+            "reconnecting",
+            "reconnected"
+          ].forEach(function (ev) {
+            session.on(ev, function (e) {
+              addLog(ev.toLowerCase().indexOf("destroy") >= 0 ? "warn" : "info", "opentok.session." + ev, [e]);
+            });
+          });
+
+          session.on("exception", function (e) {
+            addLog("error", "opentok.session.exception", [e]);
+          });
+
+          const origConnect = session.connect;
+          if (origConnect) {
+            session.connect = function (token, callback) {
+              addLog("info", "opentok.session.connect.call", ["token-present=" + !!token]);
+              return origConnect.call(session, token, function (err) {
+                if (err) addLog("error", "opentok.session.connect.callback.error", [err]);
+                else addLog("info", "opentok.session.connect.callback.success", []);
+                if (callback) return callback.apply(this, arguments);
+              });
+            };
+          }
+
+          const origPublish = session.publish;
+          if (origPublish) {
+            session.publish = function (publisher, callback) {
+              addLog("info", "opentok.session.publish.call", [publisher]);
+              return origPublish.call(session, publisher, function (err) {
+                if (err) addLog("error", "opentok.session.publish.callback.error", [err]);
+                else addLog("info", "opentok.session.publish.callback.success", []);
+                if (callback) return callback.apply(this, arguments);
+              });
+            };
+          }
+
+          const origSubscribe = session.subscribe;
+          if (origSubscribe) {
+            session.subscribe = function () {
+              addLog("info", "opentok.session.subscribe.call", arguments);
+              return origSubscribe.apply(session, arguments);
+            };
+          }
+        }
+
+        return session;
+      };
+    }
+  }
+
+  tryPatchOpenTok();
+  const otPatchTimer = setInterval(function () {
+    if (window.OT && !window.OT.__MOBILE_DEBUG_PATCHED__) {
+      tryPatchOpenTok();
+    }
+    if (window.OT && window.OT.__MOBILE_DEBUG_PATCHED__) {
+      clearInterval(otPatchTimer);
+    }
+  }, 1000);
+
+  function createOverlay() {
+    const wrap = document.createElement("div");
+    wrap.id = "__mobile_debug_overlay";
+    wrap.style.cssText = [
+      "position:fixed",
+      "left:0",
+      "right:0",
+      "bottom:0",
+      "z-index:2147483647",
+      "background:rgba(0,0,0,0.88)",
+      "color:#00ff7f",
+      "font:12px monospace",
+      "max-height:45vh",
+      "display:none",
+      "border-top:1px solid #444"
+    ].join(";");
+
+    const bar = document.createElement("div");
+    bar.style.cssText = "display:flex;gap:8px;padding:6px;background:#111;position:sticky;top:0;";
+
+    const title = document.createElement("strong");
+    title.textContent = "Mobile Debug";
+
+    const btnToggle = document.createElement("button");
+    btnToggle.textContent = "Hide";
+    const btnClear = document.createElement("button");
+    btnClear.textContent = "Clear";
+    const btnDump = document.createElement("button");
+    btnDump.textContent = "JSON";
+    const btnDevices = document.createElement("button");
+    btnDevices.textContent = "Devices";
+
+    [btnToggle, btnClear, btnDump, btnDevices].forEach(function (b) {
+      b.style.cssText = "font:12px monospace;padding:2px 6px;";
+    });
+
+    const pre = document.createElement("pre");
+    pre.style.cssText = "margin:0;padding:8px;overflow:auto;white-space:pre-wrap;max-height:38vh;";
+
+    btnToggle.onclick = function () {
+      if (pre.style.display === "none") {
+        pre.style.display = "";
+        btnToggle.textContent = "Hide";
+      } else {
+        pre.style.display = "none";
+        btnToggle.textContent = "Show";
+      }
+    };
+
+    btnClear.onclick = function () {
+      window.MobileDebug.clear();
+      pre.textContent = "";
+    };
+
+    btnDump.onclick = function () {
+      window.MobileDebug.download();
+    };
+
+    btnDevices.onclick = async function () {
+      try {
+        await window.MobileDebug.inspectMediaDevices();
+      } catch (e) {
+        addLog("error", "media.inspect.error", [e]);
+      }
+    };
+
+    bar.appendChild(title);
+    bar.appendChild(btnToggle);
+    bar.appendChild(btnClear);
+    bar.appendChild(btnDump);
+    bar.appendChild(btnDevices);
+    wrap.appendChild(bar);
+    wrap.appendChild(pre);
+    document.body.appendChild(wrap);
+
+    function render() {
+      pre.textContent = logs.slice(-100).map(function (x) {
+        return "[" + x.ts + "] [" + x.level + "] [" + x.source + "] " + x.message;
+      }).join("\n");
+    }
+
+    window.MobileDebug.onLog(render);
+    render();
+
+    return {
+      show: function () { wrap.style.display = "block"; },
+      hide: function () { wrap.style.display = "none"; }
+    };
+  }
+
+  function whenBodyReady(fn) {
+    if (document.body) return fn();
+    const timer = setInterval(function () {
+      if (document.body) {
+        clearInterval(timer);
+        fn();
+      }
+    }, 100);
+  }
+
+  whenBodyReady(function () {
+    const overlay = createOverlay();
+
+    window.showMobileDebug = function () { overlay.show(); };
+    window.hideMobileDebug = function () { overlay.hide(); };
+
+    if (location.search.indexOf("debugOverlay=1") >= 0 || location.hash.indexOf("debugOverlay=1") >= 0) {
+      overlay.show();
+    }
+  });
+
+  addLog("info", "debug.init", ["Mobile debug logger installed"]);
 })();
 </script>
+
   <script>
 (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
 l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
