@@ -5,11 +5,99 @@
   <title>Standard Login Form with Surfly</title>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>
-    // Initialize Eruda
-    eruda.init();
-    
-    // Optional: Auto-open the console if there's an error
-    console.log("Mobile console initialized!");
+(function () {
+  if (window.__full_console_hooked__) return;
+  window.__full_console_hooked__ = true;
+
+  const frameId = window === window.top
+    ? 'top'
+    : `frame:${location.href}`;
+
+  function sendToTop(payload) {
+    try {
+      if (window.top && window !== window.top) {
+        window.top.postMessage({
+          __erudaForwardedLog: true,
+          source: frameId,
+          ...payload
+        }, '*');
+      }
+    } catch (e) {}
+  }
+
+  function emit(method, args) {
+    sendToTop({ method, args });
+  }
+
+  const methods = ['log', 'warn', 'error', 'info', 'debug'];
+  const originals = {};
+
+  methods.forEach(method => {
+    originals[method] = console[method];
+    console[method] = function (...args) {
+      emit(method, args);
+      if (originals[method]) originals[method].apply(console, args);
+    };
+  });
+
+  window.addEventListener('error', function (event) {
+    emit('error', [
+      event.message,
+      event.filename,
+      event.lineno,
+      event.colno,
+      event.error
+    ]);
+  });
+
+  window.addEventListener('unhandledrejection', function (event) {
+    emit('error', ['Unhandled Promise Rejection:', event.reason]);
+  });
+
+  // Only top window owns Eruda UI
+  if (window === window.top) {
+    if (!window.__eruda_loading__) {
+      window.__eruda_loading__ = true;
+
+      window.addEventListener('message', function (event) {
+        if (!event.data || !event.data.__erudaForwardedLog) return;
+        const data = event.data;
+        const cTool = window.eruda && window.eruda.get && window.eruda.get('console');
+        if (!cTool) return;
+
+        const msg = [`[${data.source}]`, ...(data.args || [])];
+        try {
+          if (cTool[data.method]) cTool[data.method](...msg);
+          else cTool.log(...msg);
+        } catch (e) {}
+      });
+
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+      script.onload = function () {
+        eruda.init({ tool: ['console'] });
+        eruda.show();
+      };
+      document.documentElement.appendChild(script);
+    }
+
+    // Try same-origin iframes
+    function hookFrames() {
+      document.querySelectorAll('iframe').forEach((iframe, index) => {
+        try {
+          const w = iframe.contentWindow;
+          if (!w || w.__full_console_hooked__) return;
+
+          w.eval(`(${arguments.callee.caller.toString()})()`); // not ideal
+        } catch (e) {
+          // cross-origin frame, cannot access
+        }
+      });
+    }
+
+    setInterval(hookFrames, 2000);
+  }
+})();
 </script>
   <script>
 (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
