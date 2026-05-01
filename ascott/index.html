@@ -1,116 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Surfly Leader Session</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-
-    button {
-      padding: 8px 16px;
-      cursor: pointer;
-      background: #007bff;
-      color: white;
-      border: 0;
-      border-radius: 4px;
-      margin-bottom: 12px;
-    }
-
-    #surfly-iframe {
-      width: 100%;
-      height: 80vh;
-      border: 1px solid #ccc;
-    }
-  </style>
-</head>
-
-<body>
-  <h2>Start Surfly Leader Session</h2>
-
-  <button onclick="startSession()">Start Session</button>
-
-  <iframe id="surfly-iframe"></iframe>
-
-  <script>
-    var currentSession = null;
-    var surflyReady = false;
-
-    (function(s, u, r, f, l, y) {
-      s[f] = s[f] || {
-        init: function() {
-          s[f].q = arguments;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Surfly Session (Main Page)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-      };
-      l = u.createElement(r);
-      y = u.getElementsByTagName(r)[0];
-      l.async = 1;
-      l.src = "https://surfly.com/surfly.js";
-      y.parentNode.insertBefore(l, y);
-    })(window, document, "script", "Surfly");
+        .controls {
+            margin-bottom: 20px;
+        }
+        #linkInput {
+            width: 350px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .action-btn {
+            background-color: #28a745; 
+        }
+        .action-btn:hover {
+            background-color: #218838;
+        }
+        
+        /* Float the controls on top of the Surfly full-page session */
+        #sessionControls {
+            display: none; 
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2147483647; /* Maximum z-index to stay above Surfly */
+            padding: 15px;
+            background-color: rgba(248, 249, 250, 0.95);
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+            max-width: 200px;
+        }
+        #sessionControls h4 {
+            margin-top: 0;
+        }
+        #sessionControls button {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
 
-    var settings = {
-      widget_key: "513065a5492743e6a6340aec09b7e4d1",
-      hidden: true
-    };
+    <h2>Join Co-Browsing Session</h2>
+    
+    <div class="controls">
+        <input type="text" id="linkInput" placeholder="Paste Surfly follower link here...">
+        <button onclick="startSession()">Start Session</button>
+    </div>
 
-    var metadata = {
-      name: "Leader",
-      email: "leader@example.com"
-    };
+    <div id="sessionControls">
+        <h4>Session Controls</h4>
+        <button class="action-btn" onclick="requestHost()">Request to Host</button>
+        <button class="action-btn" onclick="requestTab()">Request Tab Control</button>
+        <button class="action-btn" onclick="revokeTab()">Revoke Tab Control</button>
+        <button class="action-btn" onclick="returnTab()">Return Tab Control</button>
+        <button class="action-btn" onclick="transferTab()">Transfer Tab Control</button>
+    </div>
 
-    Surfly.init(settings, function(init) {
-      if (init.success && !Surfly.isInsideSession) {
-        surflyReady = true;
-        console.log("Surfly initialized successfully");
-      } else {
-        console.error("Surfly failed to initialize", init);
-      }
-    });
+    <script>
+        var currentSession = null;
 
-    function startSession() {
-      if (!surflyReady) {
-        alert("Surfly is not ready yet.");
-        return;
-      }
+        // 1. Surfly Installation Snippet
+        (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+        l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+        l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+        (window,document,'script','Surfly');
 
-      if (currentSession) {
-        alert("Session already running.");
-        return;
-      }
-
-      try {
-        currentSession = Surfly.session();
-
-        currentSession.on("session_created", function(session) {
-          console.log("Follower link:", session.followerLink);
+        // 2. Initialize Surfly 
+        Surfly.init({
+            settings: {
+                hidden: true 
+            }
+        }, function(initResult) {
+            if (!initResult.success) {
+                console.error("Surfly failed to initialize");
+            }
         });
 
-        currentSession.on("participant_joined", function(session) {
-          console.log("Participant joined");
+        // 3. Start the session on the main page
+        function startSession() {
+            var followerLink = document.getElementById('linkInput').value;
 
-          try {
-            session.makeHost(1);
-            session.transferTabControl(1);
-          } catch (error) {
-            console.error("Failed to assign host/tab control:", error);
-          }
-        });
+            if (!followerLink) {
+                alert("Please enter a follower link first.");
+                return;
+            }
 
-        currentSession.on("session_ended", function() {
-          console.log("Session ended");
-          currentSession = null;
-        });
+            // Unhide the floating control buttons
+            var controlsDiv = document.getElementById('sessionControls');
+            if (controlsDiv) {
+                controlsDiv.style.display = 'block';
+            }
 
-        currentSession.startLeader("#surfly-iframe", metadata);
+            // Notice we removed the frame_id option here
+            var sessionOptions = {}; 
 
-      } catch (error) {
-        console.error("Failed to start Surfly session:", error);
-      }
-    }
-  </script>
+            try {
+                // Start the session on the whole page
+                currentSession = Surfly.session(sessionOptions, followerLink);
+                currentSession.startFollower(null, {});
+                console.log("Session started successfully on the main page.");
+            } catch (error) {
+                console.error("Error starting Surfly session:", error);
+                alert("There was an error starting the session.");
+            }
+        }
+
+        // --- API CONTROL FUNCTIONS ---
+
+        function requestHost() {
+            if (currentSession) currentSession.requestToHost();
+        }
+
+        function requestTab() {
+            if (currentSession) currentSession.requestTabControl();
+        }
+
+        function revokeTab() {
+            if (currentSession) currentSession.revokeTabControl();
+        }
+
+        function returnTab() {
+            if (currentSession) currentSession.returnTabControl();
+        }
+
+        function transferTab() {
+            if (currentSession) {
+                var participantId = prompt("Enter the Participant ID to transfer control to:");
+                if (participantId) {
+                    currentSession.transferTabControl(parseInt(participantId, 10));
+                }
+            }
+        }
+    </script>
+
 </body>
 </html>
