@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Start Surfly Leader Session</title>
+  <title>Surfly Leader Session</title>
 
   <style>
     body {
@@ -11,86 +10,34 @@
       margin: 20px;
     }
 
-    .controls {
-      margin-bottom: 20px;
-    }
-
     button {
       padding: 8px 16px;
-      font-size: 14px;
       cursor: pointer;
-      background-color: #007bff;
+      background: #007bff;
       color: white;
-      border: none;
+      border: 0;
       border-radius: 4px;
-      margin-right: 5px;
-      margin-bottom: 5px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .action-btn {
-      background-color: #28a745;
-    }
-
-    .action-btn:hover {
-      background-color: #218838;
+      margin-bottom: 12px;
     }
 
     #surfly-iframe {
       width: 100%;
       height: 80vh;
       border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    #sessionControls {
-      display: none;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 2147483647;
-      padding: 15px;
-      background-color: rgba(248, 249, 250, 0.95);
-      border-radius: 8px;
-      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-      max-width: 220px;
-    }
-
-    #sessionControls h4 {
-      margin-top: 0;
-    }
-
-    #sessionControls button {
-      width: 100%;
-      margin-bottom: 8px;
     }
   </style>
 </head>
 
 <body>
-  <h2>Start Surfly Co-Browsing Session</h2>
+  <h2>Start Surfly Leader Session</h2>
 
-  <div class="controls">
-    <button onclick="startSession()">Start Leader Session</button>
-  </div>
+  <button onclick="startSession()">Start Session</button>
 
   <iframe id="surfly-iframe"></iframe>
 
-  <div id="sessionControls">
-    <h4>Session Controls</h4>
-    <button class="action-btn" onclick="requestHost()">Request to Host</button>
-    <button class="action-btn" onclick="requestTab()">Request Tab Control</button>
-    <button class="action-btn" onclick="revokeTab()">Revoke Tab Control</button>
-    <button class="action-btn" onclick="returnTab()">Return Tab Control</button>
-    <button class="action-btn" onclick="transferTab()">Transfer Tab Control</button>
-    <button onclick="endSession()">End Session</button>
-  </div>
-
   <script>
     var currentSession = null;
+    var surflyReady = false;
 
     (function(s, u, r, f, l, y) {
       s[f] = s[f] || {
@@ -106,42 +53,41 @@
     })(window, document, "script", "Surfly");
 
     var settings = {
+      widget_key: "513065a5492743e6a6340aec09b7e4d1",
       hidden: true
     };
 
     var metadata = {
-      startedBy: "main-page",
-      role: "leader"
+      name: "Leader",
+      email: "leader@example.com"
     };
 
     Surfly.init(settings, function(init) {
       if (init.success && !Surfly.isInsideSession) {
+        surflyReady = true;
         console.log("Surfly initialized successfully");
       } else {
-        console.error("Surfly failed to initialize or page is already inside a session");
+        console.error("Surfly failed to initialize", init);
       }
     });
 
     function startSession() {
-      if (currentSession) {
-        alert("A Surfly session is already running.");
+      if (!surflyReady) {
+        alert("Surfly is not ready yet.");
         return;
       }
 
-      if (!Surfly || Surfly.isInsideSession) {
-        alert("Surfly is not ready or this page is already inside a session.");
+      if (currentSession) {
+        alert("Session already running.");
         return;
       }
 
       try {
-        var controlsDiv = document.getElementById("sessionControls");
-        if (controlsDiv) {
-          controlsDiv.style.display = "block";
-        }
+        currentSession = Surfly.session();
 
-        currentSession = Surfly
-          .session()
-          .startLeader("#surfly-iframe", metadata);
+        currentSession.on("session_created", function(session) {
+          console.log("Follower link:", session.followerLink);
+        });
 
         currentSession.on("participant_joined", function(session) {
           console.log("Participant joined");
@@ -156,64 +102,13 @@
 
         currentSession.on("session_ended", function() {
           console.log("Session ended");
-          cleanupSession();
+          currentSession = null;
         });
 
-        console.log("Leader session started inside iframe.");
+        currentSession.startLeader("#surfly-iframe", metadata);
+
       } catch (error) {
         console.error("Failed to start Surfly session:", error);
-        alert("There was an error starting the Surfly session.");
-        cleanupSession();
-      }
-    }
-
-    function cleanupSession() {
-      currentSession = null;
-
-      var controlsDiv = document.getElementById("sessionControls");
-      if (controlsDiv) {
-        controlsDiv.style.display = "none";
-      }
-    }
-
-    function requestHost() {
-      if (currentSession) {
-        currentSession.requestToHost();
-      }
-    }
-
-    function requestTab() {
-      if (currentSession) {
-        currentSession.requestTabControl();
-      }
-    }
-
-    function revokeTab() {
-      if (currentSession) {
-        currentSession.revokeTabControl();
-      }
-    }
-
-    function returnTab() {
-      if (currentSession) {
-        currentSession.returnTabControl();
-      }
-    }
-
-    function transferTab() {
-      if (currentSession) {
-        var participantId = prompt("Enter the Participant ID to transfer control to:");
-
-        if (participantId) {
-          currentSession.transferTabControl(parseInt(participantId, 10));
-        }
-      }
-    }
-
-    function endSession() {
-      if (currentSession) {
-        currentSession.end();
-        cleanupSession();
       }
     }
   </script>
