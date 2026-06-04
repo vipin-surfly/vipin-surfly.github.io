@@ -33,24 +33,33 @@ Surfly.init(settings, function(initResult) {
 </head>
 <body>
   Link
-  <a href="http://example.com" surfly-open-externally>Open in the new tab</a>
+  <a href="https://example.com" surfly-open-externally>
+    Open in the new tab
+  </a>
 
   Button
-  
-  <button class="external-link-button">
-  Click me
-</button>
-  <script>document.addEventListener('click', event => {
-  const button = event.target.closest('.external-link-button');
+  <button class="external-link-button" type="button">
+    Click me
+  </button>
 
-  if (!button) return;
+  <a
+    id="external-link"
+    href="https://example.com"
+    surfly-open-externally
+    style="display:none"
+  ></a>
 
-  event.preventDefault();
+  <script>
+    document.querySelector('.external-link-button').addEventListener('click', function (event) {
+      event.preventDefault();
 
-  const a = document.createElement('a');
-  a.href = 'https://example.com';
-  a.setAttribute('surfly-open-externally', '');
-  a.click();
-});</script>
+      const link = document.getElementById('external-link');
+      link.dispatchEvent(new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      }));
+    });
+  </script>
 </body>
 </html>
