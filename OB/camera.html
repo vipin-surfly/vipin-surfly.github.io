@@ -33,27 +33,21 @@
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
         }
 
-        h2,
-        h3 {
-            margin-top: 0;
-        }
-
         .browser-info {
-            word-break: break-word;
             font-size: 14px;
             line-height: 1.4;
+            word-break: break-word;
         }
 
         .button-row {
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
             margin: 15px 0 20px;
         }
 
         button {
             min-height: 44px;
-            padding: 10px 16px;
+            padding: 10px 18px;
             border: 1px solid #999;
             border-radius: 6px;
             background: #f7f7f7;
@@ -124,7 +118,7 @@
             }
 
             button {
-                flex: 1 1 45%;
+                flex: 1;
             }
 
             video {
@@ -150,18 +144,6 @@
         <button id="switchButton" type="button" disabled>
             Switch Camera
         </button>
-
-        <button id="frontButton" type="button" disabled>
-            Front Camera
-        </button>
-
-        <button id="rearButton" type="button" disabled>
-            Rear Camera
-        </button>
-
-        <button id="stopButton" type="button" disabled>
-            Stop Camera
-        </button>
     </div>
 
     <h3>Camera Preview</h3>
@@ -186,27 +168,25 @@
 <script>
     const videoElement = document.getElementById("video");
     const resultsElement = document.getElementById("results");
-    const cameraStatusElement = document.getElementById("cameraStatus");
+    const cameraStatusElement =
+        document.getElementById("cameraStatus");
 
-    const startButton = document.getElementById("startButton");
-    const switchButton = document.getElementById("switchButton");
-    const frontButton = document.getElementById("frontButton");
-    const rearButton = document.getElementById("rearButton");
-    const stopButton = document.getElementById("stopButton");
+    const startButton =
+        document.getElementById("startButton");
+
+    const switchButton =
+        document.getElementById("switchButton");
 
     let currentStream = null;
     let videoDevices = [];
     let currentCameraIndex = 0;
-    let currentFacingMode = "user";
 
     document.getElementById("browser").innerHTML =
-        "<strong>User Agent:</strong><br>" + escapeHtml(navigator.userAgent);
+        "<strong>User Agent:</strong><br>" +
+        escapeHtml(navigator.userAgent);
 
     startButton.addEventListener("click", startTest);
     switchButton.addEventListener("click", switchCamera);
-    frontButton.addEventListener("click", () => openFacingCamera("user"));
-    rearButton.addEventListener("click", () => openFacingCamera("environment"));
-    stopButton.addEventListener("click", stopCamera);
 
     function escapeHtml(value) {
         const div = document.createElement("div");
@@ -216,8 +196,12 @@
 
     function log(message, className = "info") {
         const line = document.createElement("div");
-        line.className = "result-line " + className;
+
+        line.className =
+            "result-line " + className;
+
         line.textContent = message;
+
         resultsElement.appendChild(line);
     }
 
@@ -225,21 +209,13 @@
         cameraStatusElement.textContent = message;
     }
 
-    function setButtonsForRunningCamera(isRunning) {
-        stopButton.disabled = !isRunning;
-        frontButton.disabled = !isRunning;
-        rearButton.disabled = !isRunning;
-
-        switchButton.disabled =
-            !isRunning || videoDevices.length < 2;
-    }
-
     async function startTest() {
         resultsElement.innerHTML = "";
 
-        if (!navigator.mediaDevices ||
-            !navigator.mediaDevices.getUserMedia) {
-
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
             log(
                 "❌ Camera and microphone APIs are not supported.",
                 "fail"
@@ -249,169 +225,128 @@
         }
 
         if (window.RTCPeerConnection) {
-            log("✅ RTCPeerConnection supported", "pass");
+            log(
+                "✅ RTCPeerConnection supported",
+                "pass"
+            );
         } else {
-            log("❌ RTCPeerConnection not supported", "fail");
+            log(
+                "❌ RTCPeerConnection not supported",
+                "fail"
+            );
         }
 
         if (!window.isSecureContext) {
             log(
-                "⚠️ This page is not running in a secure context. Use HTTPS or localhost.",
+                "⚠️ Use HTTPS or localhost for camera access.",
                 "warning"
             );
         }
 
         try {
-            await openFacingCamera("user", true);
+            stopCurrentStream();
+
+            setCameraStatus("Opening camera...");
+
+            currentStream =
+                await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "user"
+                    },
+                    audio: true
+                });
+
+            await attachStream(currentStream);
             await refreshDeviceList();
+            updateCurrentCameraIndex();
+
+            log(
+                "✅ Camera access granted",
+                "pass"
+            );
+
+            if (
+                currentStream.getAudioTracks().length > 0
+            ) {
+                log(
+                    "✅ Microphone access granted",
+                    "pass"
+                );
+            }
+
+            setActiveCameraStatus();
+
+            switchButton.disabled =
+                videoDevices.length < 2;
+
             await testWebRTC();
         } catch (error) {
             handleMediaError(error);
         }
     }
 
-    async function openFacingCamera(
-        facingMode,
-        includeAudio = false
-    ) {
-        stopCurrentTracks();
-
-        setCameraStatus(
-            facingMode === "environment"
-                ? "Opening rear camera..."
-                : "Opening front camera..."
-        );
-
-        try {
-            currentStream =
-                await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: {
-                            exact: facingMode
-                        }
-                    },
-                    audio: includeAudio
-                });
-        } catch (exactError) {
-            currentStream =
-                await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: facingMode
-                    },
-                    audio: includeAudio
-                });
-        }
-
-        currentFacingMode = facingMode;
-
-        await attachStream(currentStream);
-
-        await refreshDeviceList();
-
-        const activeTrack =
-            currentStream.getVideoTracks()[0];
-
-        const settings =
-            activeTrack && activeTrack.getSettings
-                ? activeTrack.getSettings()
-                : {};
-
-        currentCameraIndex = videoDevices.findIndex(
-            device =>
-                device.deviceId &&
-                device.deviceId === settings.deviceId
-        );
-
-        if (currentCameraIndex < 0) {
-            currentCameraIndex = 0;
-        }
-
-        setButtonsForRunningCamera(true);
-
-        const cameraName =
-            activeTrack && activeTrack.label
-                ? activeTrack.label
-                : facingMode === "environment"
-                    ? "Rear camera"
-                    : "Front camera";
-
-        setCameraStatus("Active camera: " + cameraName);
-
-        log(
-            facingMode === "environment"
-                ? "✅ Rear camera opened"
-                : "✅ Front camera opened",
-            "pass"
-        );
-
-        if (includeAudio) {
-            const hasAudio =
-                currentStream.getAudioTracks().length > 0;
-
-            if (hasAudio) {
-                log("✅ Microphone access granted", "pass");
-            } else {
-                log(
-                    "⚠️ Camera started, but no microphone track was returned.",
-                    "warning"
-                );
-            }
-        }
-    }
-
     async function switchCamera() {
         if (videoDevices.length < 2) {
-            log("⚠️ Only one camera was detected.", "warning");
+            log(
+                "⚠️ Only one camera was detected.",
+                "warning"
+            );
+
             return;
         }
 
         currentCameraIndex =
-            (currentCameraIndex + 1) % videoDevices.length;
+            (currentCameraIndex + 1) %
+            videoDevices.length;
 
         const selectedDevice =
             videoDevices[currentCameraIndex];
 
-        await openCameraByDeviceId(
-            selectedDevice.deviceId,
-            selectedDevice.label
-        );
-    }
+        const audioTrack =
+            currentStream?.getAudioTracks()[0] || null;
 
-    async function openCameraByDeviceId(
-        deviceId,
-        cameraLabel
-    ) {
-        stopCurrentTracks();
+        stopVideoTracks();
 
         setCameraStatus("Switching camera...");
 
         try {
-            currentStream =
+            const newVideoStream =
                 await navigator.mediaDevices.getUserMedia({
                     video: {
                         deviceId: {
-                            exact: deviceId
+                            exact: selectedDevice.deviceId
                         }
                     },
                     audio: false
                 });
 
+            const combinedStream =
+                new MediaStream();
+
+            newVideoStream
+                .getVideoTracks()
+                .forEach(track => {
+                    combinedStream.addTrack(track);
+                });
+
+            if (
+                audioTrack &&
+                audioTrack.readyState === "live"
+            ) {
+                combinedStream.addTrack(audioTrack);
+            }
+
+            currentStream = combinedStream;
+
             await attachStream(currentStream);
             await refreshDeviceList();
+            updateCurrentCameraIndex();
+            setActiveCameraStatus();
 
-            const activeTrack =
-                currentStream.getVideoTracks()[0];
-
-            const name =
-                cameraLabel ||
-                activeTrack?.label ||
-                "Camera " + (currentCameraIndex + 1);
-
-            setCameraStatus("Active camera: " + name);
-
-            setButtonsForRunningCamera(true);
-
-            log("🔄 Switched to: " + name, "pass");
+            log(
+                "🔄 Camera switched successfully",
+                "pass"
+            );
         } catch (error) {
             handleMediaError(error);
         }
@@ -424,77 +359,94 @@
             await videoElement.play();
         } catch (error) {
             console.warn(
-                "Video autoplay did not start automatically:",
+                "Video autoplay did not start:",
                 error
             );
         }
     }
 
     async function refreshDeviceList() {
-        try {
-            const devices =
-                await navigator.mediaDevices.enumerateDevices();
+        const devices =
+            await navigator.mediaDevices.enumerateDevices();
 
-            videoDevices = devices.filter(
-                device => device.kind === "videoinput"
-            );
+        videoDevices = devices.filter(
+            device => device.kind === "videoinput"
+        );
 
-            const microphones = devices.filter(
-                device => device.kind === "audioinput"
-            );
+        const microphones = devices.filter(
+            device => device.kind === "audioinput"
+        );
 
-            const speakers = devices.filter(
-                device => device.kind === "audiooutput"
-            );
+        const speakers = devices.filter(
+            device => device.kind === "audiooutput"
+        );
 
-            log(
-                "📷 Cameras detected: " + videoDevices.length,
-                "info"
-            );
+        log(
+            "📷 Cameras detected: " +
+            videoDevices.length,
+            "info"
+        );
 
-            log(
-                "🎤 Microphones detected: " + microphones.length,
-                "info"
-            );
+        log(
+            "🎤 Microphones detected: " +
+            microphones.length,
+            "info"
+        );
 
-            log(
-                "🔊 Audio outputs detected: " + speakers.length,
-                "info"
-            );
+        log(
+            "🔊 Audio outputs detected: " +
+            speakers.length,
+            "info"
+        );
+    }
 
-            videoDevices.forEach((device, index) => {
-                log(
-                    "Camera " +
-                    (index + 1) +
-                    ": " +
-                    (device.label || "Name unavailable"),
-                    "info"
-                );
-            });
+    function updateCurrentCameraIndex() {
+        const videoTrack =
+            currentStream?.getVideoTracks()[0];
 
-            switchButton.disabled =
-                !currentStream || videoDevices.length < 2;
-        } catch (error) {
-            log(
-                "⚠️ Could not list media devices: " +
-                error.message,
-                "warning"
-            );
+        if (!videoTrack) {
+            return;
+        }
+
+        const settings =
+            videoTrack.getSettings
+                ? videoTrack.getSettings()
+                : {};
+
+        const index = videoDevices.findIndex(
+            device =>
+                device.deviceId === settings.deviceId
+        );
+
+        if (index >= 0) {
+            currentCameraIndex = index;
         }
     }
 
-    function stopCamera() {
-        stopCurrentTracks();
+    function setActiveCameraStatus() {
+        const videoTrack =
+            currentStream?.getVideoTracks()[0];
 
-        videoElement.srcObject = null;
+        const name =
+            videoTrack?.label ||
+            "Active camera";
 
-        setCameraStatus("Camera stopped");
-        setButtonsForRunningCamera(false);
-
-        log("⏹️ Camera and microphone stopped", "info");
+        setCameraStatus(
+            "Active camera: " + name
+        );
     }
 
-    function stopCurrentTracks() {
+    function stopVideoTracks() {
+        if (!currentStream) {
+            return;
+        }
+
+        currentStream
+            .getVideoTracks()
+            .forEach(track => track.stop());
+    }
+
+    function stopCurrentStream() {
         if (!currentStream) {
             return;
         }
@@ -514,67 +466,74 @@
         let peerConnection;
 
         try {
-            peerConnection = new RTCPeerConnection({
-                iceServers: [
-                    {
-                        urls: "stun:stun.l.google.com:19302"
-                    }
-                ]
-            });
+            peerConnection =
+                new RTCPeerConnection({
+                    iceServers: [
+                        {
+                            urls:
+                                "stun:stun.l.google.com:19302"
+                        }
+                    ]
+                });
 
             peerConnection.createDataChannel("test");
 
-            peerConnection.onicecandidate = event => {
-                if (!event.candidate) {
+            peerConnection.onicecandidate =
+                event => {
+                    if (!event.candidate) {
+                        log(
+                            "✅ ICE gathering completed",
+                            "pass"
+                        );
+
+                        peerConnection.close();
+                        return;
+                    }
+
+                    const candidate =
+                        event.candidate.candidate || "";
+
+                    let type = "unknown";
+
+                    if (
+                        candidate.includes(" typ host ")
+                    ) {
+                        type = "host";
+                    } else if (
+                        candidate.includes(" typ srflx ")
+                    ) {
+                        type = "server-reflexive";
+                    } else if (
+                        candidate.includes(" typ relay ")
+                    ) {
+                        type = "relay";
+                    }
+
                     log(
-                        "✅ ICE candidate gathering completed",
-                        "pass"
+                        "ICE candidate: " + type,
+                        "info"
                     );
-
-                    peerConnection.close();
-                    return;
-                }
-
-                const candidate =
-                    event.candidate.candidate || "";
-
-                let candidateType = "unknown";
-
-                if (candidate.includes(" typ host ")) {
-                    candidateType = "host";
-                } else if (candidate.includes(" typ srflx ")) {
-                    candidateType = "server-reflexive";
-                } else if (candidate.includes(" typ relay ")) {
-                    candidateType = "relay";
-                }
-
-                log(
-                    "ICE candidate detected: " + candidateType,
-                    "info"
-                );
-            };
-
-            peerConnection.onicecandidateerror = event => {
-                log(
-                    "⚠️ ICE candidate error: " +
-                    (event.errorText || "Unknown error"),
-                    "warning"
-                );
-            };
+                };
 
             const offer =
                 await peerConnection.createOffer();
 
-            await peerConnection.setLocalDescription(offer);
+            await peerConnection.setLocalDescription(
+                offer
+            );
 
-            log("✅ WebRTC initialized", "pass");
+            log(
+                "✅ WebRTC initialized",
+                "pass"
+            );
         } catch (error) {
             if (peerConnection) {
                 peerConnection.close();
             }
 
             log(
-                "❌ WebRTC failed: " + error.message,
+                "❌ WebRTC failed: " +
+                error.message,
                 "fail"
             );
         }
@@ -583,12 +542,14 @@
     function handleMediaError(error) {
         console.error(error);
 
-        setCameraStatus("Camera failed to start");
-        setButtonsForRunningCamera(false);
+        setCameraStatus(
+            "Camera failed to start"
+        );
+
+        switchButton.disabled = true;
 
         switch (error.name) {
             case "NotAllowedError":
-            case "PermissionDeniedError":
                 log(
                     "❌ Camera or microphone permission was denied.",
                     "fail"
@@ -596,7 +557,6 @@
                 break;
 
             case "NotFoundError":
-            case "DevicesNotFoundError":
                 log(
                     "❌ No camera or microphone was found.",
                     "fail"
@@ -604,31 +564,15 @@
                 break;
 
             case "NotReadableError":
-            case "TrackStartError":
                 log(
-                    "❌ Could not start the camera. It may already be in use by another application.",
+                    "❌ The camera may already be in use by another application.",
                     "fail"
                 );
                 break;
 
             case "OverconstrainedError":
-            case "ConstraintNotSatisfiedError":
                 log(
-                    "❌ The requested camera settings are not supported.",
-                    "fail"
-                );
-                break;
-
-            case "SecurityError":
-                log(
-                    "❌ Camera access was blocked for security reasons.",
-                    "fail"
-                );
-                break;
-
-            case "AbortError":
-                log(
-                    "❌ Camera startup was interrupted.",
+                    "❌ The requested camera is not available.",
                     "fail"
                 );
                 break;
@@ -644,7 +588,10 @@
         }
     }
 
-    window.addEventListener("beforeunload", stopCurrentTracks);
+    window.addEventListener(
+        "beforeunload",
+        stopCurrentStream
+    );
 </script>
 
 </body>
