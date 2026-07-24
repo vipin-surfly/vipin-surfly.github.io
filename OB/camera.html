@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile WebRTC Test</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+}
+
+video {
+    width: 100%;
+    background: black;
+    border-radius: 8px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+}
+
+.pass { color: green; }
+.fail { color: red; }
+.info { color: blue; }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>WebRTC Mobile Test</h2>
+
+<p id="browser"></p>
+
+<button onclick="startTest()">Start Test</button>
+
+<h3>Camera Preview</h3>
+
+<video id="video" autoplay playsinline muted></video>
+
+<h3>Results</h3>
+
+<div id="results"></div>
+
+</div>
+
+<script>
+
+const results = document.getElementById("results");
+
+function log(msg, cls="info"){
+    const div=document.createElement("div");
+    div.className=cls;
+    div.innerHTML=msg;
+    results.appendChild(div);
+}
+
+document.getElementById("browser").innerHTML =
+"<b>User Agent:</b><br>"+navigator.userAgent;
+
+async function startTest(){
+
+results.innerHTML="";
+
+if(!navigator.mediaDevices){
+    log("❌ mediaDevices not supported","fail");
+    return;
+}
+
+if(!window.RTCPeerConnection){
+    log("❌ RTCPeerConnection NOT supported","fail");
+}else{
+    log("✅ RTCPeerConnection supported","pass");
+}
+
+try{
+
+const stream = await navigator.mediaDevices.getUserMedia({
+    video:true,
+    audio:true
+});
+
+document.getElementById("video").srcObject=stream;
+
+log("✅ Camera access granted","pass");
+log("✅ Microphone access granted","pass");
+
+const devices=await navigator.mediaDevices.enumerateDevices();
+
+let cameras=0;
+let mics=0;
+let speakers=0;
+
+devices.forEach(d=>{
+
+if(d.kind==="videoinput") cameras++;
+if(d.kind==="audioinput") mics++;
+if(d.kind==="audiooutput") speakers++;
+
+});
+
+log("📷 Cameras: "+cameras);
+log("🎤 Microphones: "+mics);
+log("🔊 Speakers: "+speakers);
+
+testWebRTC();
+
+}catch(e){
+
+log("❌ "+e.message,"fail");
+
+}
+
+}
+
+function testWebRTC(){
+
+try{
+
+const pc=new RTCPeerConnection({
+iceServers:[
+{urls:"stun:stun.l.google.com:19302"}
+]
+});
+
+pc.createDataChannel("test");
+
+pc.onicecandidate=(e)=>{
+
+if(e.candidate){
+log("ICE Candidate: "+e.candidate.candidate);
+}
+
+};
+
+pc.createOffer()
+.then(o=>pc.setLocalDescription(o));
+
+log("✅ WebRTC initialized","pass");
+
+}catch(e){
+
+log("❌ WebRTC failed: "+e.message,"fail");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
