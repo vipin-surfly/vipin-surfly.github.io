@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Surfly + GTM reproduction lab</title>
+  <script>
+    // EDIT THESE VALUES. Use a TEST GTM container and a client-side widget key.
+    // Never put a Surfly REST API key or other server-side secret in this page.
+    window.SURFLY_GTM_LAB_CONFIG = {
+      gtmIds: ["GTM-REPLACE_ME"],
+      surflyWidgetKey: "26dff39babcb429abff34f10cd0958ff",
+      // For a custom deployment, use the script URL from its widget snippet.
+      surflyScriptUrl: "https://surfly-s3.com/surfly.js",
+      language: "en"
+    };
+
+    // Preserve the array. Each real page context bootstraps its own GTM.
+    window.dataLayer = window.dataLayer || [];
+    window.__gtmLabBootstrapErrors = [];
+    [...new Set(window.SURFLY_GTM_LAB_CONFIG.gtmIds)].forEach(function(id) {
+      if (!/^GTM-[A-Z0-9]+$/.test(id)) {
+        window.__gtmLabBootstrapErrors.push("Replace the GTM container ID: " + id);
+        return;
+      }
+      (function(w,d,s,l,i) {
+        w[l]=w[l]||[];
+        w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0],j=d.createElement(s),
+            dl=l!='dataLayer'?'&l='+l:'';
+        j.async=true;
+        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        j.onerror=function() {
+          console.error('[GTM LAB] Container download failed:',i);
+        };
+        f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer',id);
+    });
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #182434; background: #edf2f6; }
+    body { max-width: 960px; margin: 36px auto; padding: 0 20px 40px; }
+    h1 { margin-bottom: 8px; font-size: 30px; }
+    p { line-height: 1.55; }
+    .card { background: #fff; border: 1px solid #d5dfe8; border-radius: 12px;
+            padding: 20px; margin: 18px 0; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    button { font: inherit; padding: 10px 14px; cursor: pointer; border-radius: 6px;
+             border: 1px solid #a8b7c6; background: #fff; }
+    button:disabled { cursor: not-allowed; opacity: .5; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5;
+          max-height: 400px; overflow-y: auto; font-size: 13px; }
+    code { font-size: .95em; }
+    .notice { border-left: 4px solid #b48014; padding-left: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Surfly + GTM reproduction lab</h1>
+  <p>Compare a local <code>dataLayer.push()</code> before and during a Leader session.
+     No cross-window forwarding, automatic probe events, or analytics fixes are applied.</p>
+  <p class="notice">Internal staging only. This page loads your test GTM container immediately.
+    Use synthetic data and your approved test consent setup. No consent banner is included.</p>
+
+  <div class="card">
+    <p id="status">Initializing the test page...</p>
+    <div class="controls">
+      <button id="send" type="button">Send test event</button>
+      <button id="start" type="button" disabled>Start Surfly Leader</button>
+      <button id="inspect" type="button">Inspect this context</button>
+      <button id="route" type="button">Change local URL</button>
+    </div>
+    <p>End the session using Surfly's own controls. In DevTools, switch between the
+       original page and the co-browsed application frame to inspect each separately.</p>
+  </div>
+  <div class="card"><h2>Current execution context</h2><pre id="snapshot"></pre></div>
+  <div class="card"><h2>Local diagnostic log</h2><pre id="log" aria-live="polite"></pre></div>
+
+  <script>
+    (() => {
+      'use strict';
+      const config = window.SURFLY_GTM_LAB_CONFIG;
+      const bootId = makeId();
+      const initialDataLayer = window.dataLayer;
+      const records = [];
+      let ready = false;
+      let pendingOrActive = false;
+      const startButton = document.getElementById('start');
+      const status = document.getElementById('status');
+
+      function makeId() {
+        return typeof window.crypto?.randomUUID === 'function'
+          ? window.crypto.randomUUID()
+          : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+      }
+
+      function layer() {
+        if (!Array.isArray(window.dataLayer)) {
+          throw new Error('window.dataLayer is missing or is not an array.');
+        }
+        return window.dataLayer;
+      }
+
+      function contextLabel() {
+        if (!ready || typeof window.Surfly?.isInsideSession !== 'boolean') {
+          return 'sdk_not_ready';
+        }
+        return window.Surfly.isInsideSession ? 'inside_surfly' : 'outside_surfly';
+      }
+
+      function log(label, value) {
+        const line = new Date().toISOString() + ' ' + label + ' ' + JSON.stringify(value);
+        records.push(line);
+        if (records.length > 200) records.shift();
+        document.getElementById('log').textContent = records.join('\n');
+        console.info('[GTM LAB]', line);
+      }
+
+      function snapshot() {
+        let sameDataLayerAsTop = 'access_denied';
+        try { sameDataLayerAsTop = window.dataLayer === window.top.dataLayer; }
+        catch (_) { /* Expected when cross-origin access is restricted. */ }
+        const result = {
+          context_id: bootId,
+          probe_context: contextLabel(),
+          isInsideSession: ready ? window.Surfly?.isInsideSession : 'not_ready',
+          windowEqualsTop: window === window.top,
+          localUrl: window.location.href,
+          originalArrayUnchanged: window.dataLayer === initialDataLayer,
+          sameDataLayerAsTop,
+          localDataLayerLength: Array.isArray(window.dataLayer) ? window.dataLayer.length : null,
+          localProbeEvents: Array.isArray(window.dataLayer)
+            ? window.dataLayer.filter(item => item?.event === 'surfly_gtm_probe').length : null,
+          configuredContainers: config.gtmIds
+        };
+        document.getElementById('snapshot').textContent = JSON.stringify(result, null, 2);
+        return result;
+      }
+
+      function pushTest() {
+        const event = {
+          event: 'surfly_gtm_probe',
+          flow_id: 'probe-' + makeId(),
+          context_id: bootId,
+          probe_context: contextLabel()
+        };
+        layer().push(event); // Intentionally LOCAL. Do not change to window.top.
+        log('LOCAL_PUSH', event);
+        snapshot();
+        return event;
+      }
+
+      function updateStartButton() {
+        startButton.disabled = !ready || pendingOrActive ||
+          window.Surfly?.isInsideSession !== false;
+      }
+
+      function startLeader() {
+        if (!ready || pendingOrActive || window.Surfly.isInsideSession !== false) {
+          log('START_SKIPPED', { reason: 'SDK not ready, inside session, or already started' });
+          return;
+        }
+        pendingOrActive = true;
+        updateStartButton();
+        try {
+          window.Surfly.session({ language: config.language })
+            .on('session_started', () => {
+              status.textContent = 'Leader session started. Inspect both execution contexts.';
+              log('SESSION_STARTED', { context_id: bootId });
+              snapshot();
+            })
+            .on('session_ended', () => {
+              pendingOrActive = false;
+              updateStartButton();
+              log('SESSION_ENDED', { context_id: bootId });
+              snapshot();
+            })
+            .startLeader(null, { name: 'Internal GTM test', test_case: 'surfly_gtm_probe' });
+          log('START_REQUESTED', { context_id: bootId });
+        } catch (error) {
+          pendingOrActive = false;
+          updateStartButton();
+          log('START_ERROR', { message: String(error) });
+        }
+      }
+
+      function initSurfly() {
+        if (typeof window.Surfly?.init !== 'function') {
+          status.textContent = 'Surfly SDK did not expose init(). Check the script URL.';
+          return;
+        }
+        try {
+          window.Surfly.init({ widget_key: config.surflyWidgetKey }, result => {
+            ready = result.success === true;
+            status.textContent = ready
+              ? 'Surfly initialized: ' + contextLabel() + '. Verify the GTM/GA4 baseline first.'
+              : 'Surfly initialization failed. Check the widget key, domain and deployment.';
+            log('SDK_INIT', { success: ready, error: result.errorMsg || null });
+            // Do not create a second session after a page reload restores one.
+            if (ready && !window.Surfly.isInsideSession &&
+                typeof window.Surfly.listSessions === 'function') {
+              pendingOrActive = window.Surfly.listSessions().length > 0;
+            }
+            updateStartButton();
+            snapshot();
+          });
+        } catch (error) {
+          status.textContent = 'Surfly initialization threw an error. See the log.';
+          log('INIT_ERROR', { message: String(error) });
+        }
+      }
+
+      document.getElementById('send').addEventListener('click', () => {
+        try { pushTest(); }
+        catch (error) { log('PUSH_ERROR', { message: String(error) }); }
+      });
+      startButton.addEventListener('click', startLeader);
+      document.getElementById('inspect').addEventListener('click', () => log('SNAPSHOT', snapshot()));
+      document.getElementById('route').addEventListener('click', () => {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('lab_route', Date.now().toString());
+          window.history.replaceState(window.history.state, '', url.href);
+          log('LOCAL_HISTORY_REPLACED', { localUrl: window.location.href });
+          snapshot();
+        } catch (error) { log('HISTORY_ERROR', { message: String(error) }); }
+      });
+
+      // Run these in either DevTools context. No cross-context forwarding is done.
+      window.gtmLab = {
+        snapshot,
+        pushTest,
+        events: () => layer().filter(item => item?.event === 'surfly_gtm_probe')
+      };
+      log('APP_BOOT', { context_id: bootId });
+      config.gtmIds.length || log('CONFIG_ERROR', { message: 'No GTM IDs configured' });
+      window.__gtmLabBootstrapErrors.forEach(message => log('CONFIG_ERROR', { message }));
+      snapshot();
+
+      if (!config.surflyWidgetKey || config.surflyWidgetKey.includes('REPLACE_')) {
+        status.textContent = 'Edit the GTM container ID and Surfly widget key at the top of this file.';
+        log('CONFIG_ERROR', { message: 'Surfly widget key is not configured' });
+      } else if (typeof window.Surfly?.init === 'function') {
+        initSurfly();
+      } else {
+        const script = document.createElement('script');
+        script.src = config.surflyScriptUrl;
+        script.async = true;
+        script.onload = initSurfly;
+        script.onerror = () => {
+          status.textContent = 'Could not load Surfly. Check Network and the SDK URL.';
+          log('SDK_LOAD_ERROR', { message: 'Surfly script download failed' });
+        };
+        document.head.appendChild(script);
+      }
+    })();
+  </script>
+</body>
+</html>
