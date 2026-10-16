@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>PXCH initSpace repro</title>
+<script>
+  window.webfuse = window.webfuse || { q: [], initSpace: function () {
+    var a = arguments;
+    return new Promise(function (res) { window.webfuse.resolve = res; window.webfuse.q = a; });
+  }};
+</script>
+<script async src="https://interactive.mypxch.com/surfly.js"></script>
+</head><body>
+<script>
+  webfuse.initSpace('wk_FtfKLLSEwqA5PwVv5lWBO1_NdeIQ98x9', 2886)
+    .then(s => console.log('Space initialized:', s && s.id))
+    .catch(e => console.error('REPRO initSpace failed:', e));
+</script>
+</body></html>
