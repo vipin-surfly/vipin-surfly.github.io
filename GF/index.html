@@ -1,0 +1,10 @@
+<!doctype html>
+<body>
+  <!-- FAILS in session: fragment survives into the upstream fetch -> 502 -->
+  <video preload="auto" muted controls
+    src="https://s3.eu-west-1.amazonaws.com/files.library.agorapulse.com/organizations/525796/workspaces/425684/studio/studio_2VWsNjnZui6891cXwSqVyF.mp4#t=58"></video>
+
+  <!-- CONTROL, loads in session: identical, no fragment -->
+  <video preload="auto" muted controls
+    src="https://s3.eu-west-1.amazonaws.com/files.library.agorapulse.com/organizations/525796/workspaces/425684/studio/studio_2VWsNjnZui6891cXwSqVyF.mp4"></video>
+</body>
