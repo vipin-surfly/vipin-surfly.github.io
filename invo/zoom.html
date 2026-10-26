@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consumer Credit Agreement — Zoom Reproduction Test</title>
+<style>
+  body { font: 12px/1.45 Georgia, serif; color: #1a1a1a; margin: 0; background: #fff; }
+  .banner { position: fixed; top: 0; left: 0; right: 0; height: 46px; background: #0b5cad; color: #fff;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 12px;
+            z-index: 10; font-family: Arial, sans-serif; font-size: 14px; }
+  main { max-width: 860px; margin: 60px auto 140px; padding: 0 16px; }
+  h1 { font-size: 16px; text-align: center; margin: 8px 0; }
+  h2 { font-size: 13px; margin: 18px 0 4px; border-bottom: 1px solid #999; }
+  p { margin: 6px 0; text-align: justify; }
+  table { border-collapse: collapse; width: 100%; font-size: 11px; margin: 8px 0; }
+  td, th { border: 1px solid #888; padding: 3px 5px; }
+  .sigbox { border: 2px dashed #666; height: 100px; display: flex; align-items: center;
+            justify-content: center; margin: 14px 0; font-family: Arial; color: #555; }
+  .field { display: inline-block; border-bottom: 1px solid #333; min-width: 180px; height: 18px; }
+  .fine { font-size: 9.5px; color: #333; }
+  #sig-canvas { border: 1px solid #999; touch-action: none; background: #fcfcfc; }
+  input { border: 1px solid #999; padding: 2px 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="banner"><span>Envelope: Zoom Reproduction Test</span><span>Other actions &#9662;</span></div>
+<main>
+  <h1>CONSUMER CREDIT AGREEMENT AND FEDERAL DISCLOSURES</h1>
+  <p class="fine">Five County CU &middot; Test document for Surfly iOS pinch-zoom reproduction &middot; Sections: <span id="section-count">?</span></p>
+  <p><b>Borrower:</b> <span class="field"></span> &nbsp; <b>Date:</b> <input type="text" size="10"></p>
+  <div id="content"></div>
+  <h2>AGREEMENT AND SIGNATURE</h2>
+  <p>By signing below, I acknowledge that I have received and read all disclosures provided in this
+     agreement, that I have had the opportunity to ask questions, and that I agree to the terms
+     stated herein. This signature is applied electronically as part of a co-browsed session.</p>
+  <div class="sigbox">Draw your signature below</div>
+  <canvas id="sig-canvas" width="620" height="130"></canvas>
+  <p class="fine">This is a synthetic document generated for load and zoom-behavior testing.
+     It intentionally uses small fonts and dense content so that a mobile participant must
+     pinch-zoom to read it, replicating the conditions of session f13MNCFDNtFXSsWa0s8a2N5EYQ.</p>
+</main>
+<script>
+(function () {
+  var sections = 60;
+  var m = location.search.match(/sections=(\d+)/);
+  if (m) sections = Math.max(1, parseInt(m[1], 10));
+
+  var titles = [
+    "Definitions and Interpretation", "Loan Terms and Amount", "Interest and Finance Charges",
+    "Payment Schedule", "Late Charges and Default", "Prepayment",
+    "Security Interest", "Insurance Requirements", "Credit Reporting Practices",
+    "Arbitration and Governing Law", "Electronic Communications Consent",
+    "Privacy and Data Handling", "Military Lending Act Disclosures",
+    "Equal Credit Opportunity Act Notice", "General Provisions"
+  ];
+  var sentences = [
+    "The borrower agrees to repay the principal amount together with all accrued interest and any applicable fees as set forth in the schedule of payments attached hereto as Exhibit A.",
+    "All notices required under this agreement shall be deemed delivered when deposited in the United States mail, postage prepaid, addressed to the party at the address shown on the signature page of this agreement.",
+    "The lender may, at its sole discretion and subject to applicable law, modify, amend, or waive any provision of this agreement upon written notice to the borrower, except where such modification would increase the borrower's obligations without consent.",
+    "In the event of default, the lender reserves all rights and remedies available under applicable state and federal law, including but not limited to acceleration of the outstanding balance, subject to the notice and cure periods described herein.",
+    "This agreement shall be governed by and construed in accordance with the laws of the jurisdiction in which the lender maintains its principal place of business, without regard to any conflict-of-law provisions that might direct application of another jurisdiction's law.",
+    "The borrower certifies that all information submitted in connection with this extension of credit is true, complete, and accurate to the best of the borrower's knowledge and belief as of the date of execution of this agreement.",
+    "Payments received shall be applied in the following order unless otherwise required by applicable law: first to any unpaid late charges, second to accrued interest, and third to principal. Extra payments are applied to principal only after all amounts currently due have been satisfied.",
+    "The parties consent to the use of electronic records and signatures in connection with this agreement and agree that such electronic records shall have the same force and effect as paper records and ink signatures."
+  ];
+
+  var html = "";
+  for (var s = 0; s < sections; s++) {
+    var t = titles[s % titles.length];
+    html += "<h2>Article " + (s + 1) + ". " + t + "</h2>";
+    if (s % 6 === 0) {
+      html += "<p><b>Initials:</b> <span class=\"field\"></span> &nbsp; <b>Account No:</b> <span class=\"field\"></span></p>";
+    }
+    for (var p = 0; p < 6; p++) {
+      var v = sentences[(s * 7 + p) % sentences.length];
+      html += "<p>" + v + " " + sentences[(s * 5 + p * 3) % sentences.length] + "</p>";
+    }
+    if (s % 5 === 0) {
+      html += "<table><tr><th>Year</th><th>Beginning balance</th><th>Payments made</th><th>Interest paid</th><th>Principal paid</th><th>Ending balance</th></tr>";
+      for (var r = 0; r < 4; r++) {
+        var base = 12500 - r * 2100 - s * 3;
+        html += "<tr><td>" + (r + 1) + "</td><td>$" + base.toFixed(2) + "</td><td>$" + (412 + r * 8).toFixed(2) +
+                "</td><td>$" + (96.44 - r * 11).toFixed(2) + "</td><td>$" + (315.56 + r * 11).toFixed(2) +
+                "</td><td>$" + (base - 315.56 - r * 11).toFixed(2) + "</td></tr>";
+      }
+      html += "</table>";
+    }
+    if (s % 10 === 4) {
+      html += "<p class=\"fine\">NOTICE: This provision is subject to the Truth in Lending Act (15 U.S.C. 1601 et seq.) and Regulation Z " +
+              "promulgated thereunder, as amended. The annual percentage rate disclosed herein reflects the cost of your credit as a yearly rate. " +
+              "Nothing in this document should be construed as legal advice or a commitment to lend.</p>";
+    }
+  }
+  document.getElementById("content").innerHTML = html;
+  document.getElementById("section-count").textContent = sections;
+
+  var canvas = document.getElementById("sig-canvas");
+  var ctx = canvas.getContext("2d");
+  var drawing = false;
+  function pos(e) {
+    var r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  canvas.addEventListener("pointerdown", function (e) {
+    drawing = true; var p = pos(e);
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineWidth = 2; ctx.lineCap = "round";
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!drawing) return;
+    var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+  });
+  window.addEventListener("pointerup", function () { drawing = false; });
+})();
+</script>
+</body>
+</html>
