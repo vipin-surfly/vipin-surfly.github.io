@@ -1,0 +1,20 @@
+<!-- Soul Machines agent embed — plain-page test snippet.
+     Paste anywhere before </body> on a public https page.
+     Page origin must be listed in the generator's allowed_domains. -->
+<div id="sm-agent-panel" style="position:fixed;bottom:16px;right:16px;width:420px;height:600px;
+     z-index:2147483647;box-shadow:0 4px 16px rgba(0,0,0,.25);border-radius:12px;
+     overflow:hidden;background:#fff;">
+  <iframe id="sm-agent-iframe"
+          src="https://workforce.soulmachines.com/assistant?a=eyJhdXRoU2VydmVyIjogImh0dHBzOi8vaW50ZXJhY3Rpb25zLWFwaS5zb3VsbWFjaGluZXMuY2xvdWQvYXBpL3YxL2ludGVyYWN0aW9ucy9hcHAvand0IiwgImludGVyYWN0aW9uX2lkIjogIjRhZGU5ZDE5LWRiNTUtNDMwYy1iYjVkLTI5Mzk3ZmE1Nzk3ZSJ9"
+          allow="camera; microphone; clipboard-read; clipboard-write; autoplay"
+          style="width:100%;height:100%;border:0;"></iframe>
+</div>
+<button id="sm-agent-toggle" style="position:fixed;bottom:16px;right:448px;z-index:2147483647;
+        padding:8px 14px;border-radius:18px;border:0;cursor:pointer;background:#4f46e5;
+        color:#fff;font:600 13px sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.2);">Agent</button>
+<script>
+  document.getElementById("sm-agent-toggle").onclick = function () {
+    var p = document.getElementById("sm-agent-panel");
+    p.style.display = (p.style.display === "none") ? "block" : "none";
+  };
+</script>
